@@ -1,0 +1,82 @@
+{
+    "name": "PlayerControls",
+    "maps": [
+        {
+            "name": "KeyboardMaping",
+            "id": "a08a2e32-6ec5-4706-b12e-3dc1f5cf9cf1",
+            "actions": [
+                {
+                    "name": "SkipCutscene",
+                    "type": "Button",
+                    "id": "a75e29be-de3e-42fc-ae3b-297361e33fef",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "a4d083b2-df82-4546-8e49-f40bbf80ea1f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "56f7077a-1d1a-4183-8501-831afe9ef55b",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SkipCutscene",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "35940fa0-8c0d-4b57-8311-f6b71b7f4efc",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Gamepad",
+            "id": "33a46431-4df4-4233-9b97-6285d6462fb1",
+            "actions": [
+                {
+                    "name": "SkipCutscene",
+                    "type": "Button",
+                    "id": "f07c32de-fd35-4680-b31a-55e75fa739b5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "647cb529-4bb1-406c-b644-339fdce86928",
+                    "path": "<XInputController>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SkipCutscene",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
