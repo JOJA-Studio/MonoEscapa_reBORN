@@ -44,7 +44,7 @@ public class FieldOfView : MonoBehaviour
                 if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstructionMask)) 
                 {
                     canSeePlayer = true;
-
+                    //Aqui tengo que poner que vaya al modo ataque
                 }
                 else { canSeePlayer = false; }
             }
