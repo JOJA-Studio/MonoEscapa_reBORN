@@ -17,7 +17,7 @@ namespace SA
         {
             mtransform = this.transform;
             rigidbody = GetComponent<Rigidbody>();
-            animator = GetComponent<Animator>();
+            animator = GetComponentInChildren<Animator>();
         }
 
         public void Move(Vector3 moveDirection, float delta)
