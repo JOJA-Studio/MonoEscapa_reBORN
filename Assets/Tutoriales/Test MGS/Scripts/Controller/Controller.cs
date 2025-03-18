@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 
 namespace SA
@@ -10,7 +11,8 @@ namespace SA
         new Rigidbody rigidbody;
         public float moveSpeed = .4f;
         public float rotateSpeed = .2f;
-        Transform mtransform;
+        [HideInInspector]
+        public Transform mtransform;
         Animator animator;
 
         private void Start()
@@ -20,14 +22,27 @@ namespace SA
             animator = GetComponentInChildren<Animator>();
         }
 
+        public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta)
+        {
+            Vector3 projectvel = Vector3.ProjectOnPlane(moveDirection, normal);
+
+            rigidbody.velocity = projectvel * moveSpeed; 
+            HandleMovementAnimations(0, delta);
+
+            HandleRotation(-normal, delta);
+        }
+
         public void Move(Vector3 moveDirection, float delta)
         {
             rigidbody.velocity = moveDirection * moveSpeed;
+            HandleRotation(moveDirection, delta);
+        }
 
-            Vector3 lookDir = moveDirection;
-            if(lookDir == Vector3.zero)
+        void HandleRotation(Vector3 lookDir, float delta)
+        {
+            if (lookDir == Vector3.zero)
                 lookDir = mtransform.forward;
-            Quaternion lookRotation = Quaternion.LookRotation(moveDirection);   
+            Quaternion lookRotation = Quaternion.LookRotation(lookDir);
             mtransform.rotation = Quaternion.Slerp(mtransform.rotation, lookRotation, delta / rotateSpeed);
         }
 

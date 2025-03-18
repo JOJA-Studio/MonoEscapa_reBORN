@@ -11,26 +11,38 @@ namespace SA
 
         public ExecutionOrder movementOrder;
         public Controller controller;
+        public CameraManager cameraManager;
 
-        Vector3 moveDirection;
+        float horizontal;
+        float vertical;
+        float moveAmount;
+
+    Vector3 moveDirection;
+        public float wallDetectDistance = .5f;
 
         public enum ExecutionOrder { 
             fixedUpdate, update, lateUpdate
         }
 
+        private void Start()
+        {
+            cameraManager.wallCameraObject.SetActive(false);
+            cameraManager.mainCameraObject.SetActive(true);
+        }
+
         private void FixedUpdate()
         {
             if (movementOrder == ExecutionOrder.fixedUpdate)
-            { 
-                controller.Move(moveDirection, Time.fixedDeltaTime);
+            {
+                HandleMovement(moveDirection, Time.fixedDeltaTime);
             }  
         }
 
         private void Update()
         {
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
-            float moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
+            horizontal = Input.GetAxis("Horizontal");
+            vertical = Input.GetAxis("Vertical");
+            moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
 
             moveDirection = camHolder.forward * vertical;
             moveDirection += camHolder.right * horizontal;
@@ -38,12 +50,37 @@ namespace SA
 
             float delta = Time.deltaTime;
 
+
+
             if (movementOrder == ExecutionOrder.update)
             {
-                controller.Move(moveDirection, delta);
+                HandleMovement(moveDirection, delta);
             }
 
             controller.HandleMovementAnimations(moveAmount, delta);
+        }
+
+        void HandleMovement(Vector3 moveDirection, float delta)
+        {
+            Vector3 origin = controller.transform.position;
+            origin.y += 1;
+            Debug.DrawRay(origin, moveDirection * wallDetectDistance);
+            if (Physics.Raycast(origin, moveDirection, out RaycastHit hit, wallDetectDistance))
+            {
+                cameraManager.wallCameraObject.SetActive(true);
+                cameraManager.mainCameraObject.SetActive(false);
+
+                controller.Wallmovement(moveDirection, hit.normal, delta);
+                //Debug.Log("Chocando con pared");
+                //if()
+            }
+            else
+            {
+                cameraManager.wallCameraObject.SetActive(false);
+                cameraManager.mainCameraObject.SetActive(true);
+                controller.Move(moveDirection, delta);            
+            }
+            
         }
     }
 
