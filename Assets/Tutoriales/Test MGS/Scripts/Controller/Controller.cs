@@ -18,7 +18,7 @@ namespace SA
         Animator animator;
 
         public bool isWall;
-        public bool isCrounch;
+        public bool isCrouch;
         public bool isProne;
 
 
@@ -84,12 +84,19 @@ namespace SA
         public void Move(Vector3 moveDirection, float delta)
         {
 
-            rigidbody.velocity = moveDirection * moveSpeed;
-            HandleRotation(moveDirection, delta);
-            
+            rigidbody.velocity = moveDirection * moveSpeed;            
         }
 
-        void HandleRotation(Vector3 lookDir, float delta)
+        public void CrouchMovement(Vector3 moveDirection, float delta)
+        {
+            float dot = Vector3.Dot(moveDirection, mtransform.forward);
+            if (dot > 0)
+            { 
+            
+            }
+        }
+
+        public void HandleRotation(Vector3 lookDir, float delta)
         {
             if (lookDir == Vector3.zero)
                 lookDir = mtransform.forward;
@@ -99,6 +106,7 @@ namespace SA
 
         public void HandleAnimationStates()
         {
+            animator.SetBool("isCrouch", isCrouch);
             animator.SetBool("isWall", isWall);
         }
 
