@@ -282,7 +282,7 @@ MonoBehaviour:
   wallCheckDis: 0.5
   mtransform: {fileID: 0}
   isWall: 0
-  isCrounch: 0
+  isCrouch: 0
   isProne: 0
 --- !u!54 &394432700
 Rigidbody:
