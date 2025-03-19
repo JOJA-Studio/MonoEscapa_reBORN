@@ -13,12 +13,12 @@ namespace SA
         public Controller controller;
         public CameraManager cameraManager;
 
+        Vector3 moveDirection;
+        public float wallDetectDistance = .5f;
+
         float horizontal;
         float vertical;
         float moveAmount;
-
-    Vector3 moveDirection;
-        public float wallDetectDistance = .5f;
 
         public enum ExecutionOrder { 
             fixedUpdate, update, lateUpdate
@@ -50,35 +50,36 @@ namespace SA
 
             float delta = Time.deltaTime;
 
-
-
             if (movementOrder == ExecutionOrder.update)
             {
                 HandleMovement(moveDirection, delta);
             }
 
-            controller.HandleMovementAnimations(moveAmount, delta);
+            controller.HandleAnimationStates();
         }
 
         void HandleMovement(Vector3 moveDirection, float delta)
         {
             Vector3 origin = controller.transform.position;
             origin.y += 1;
+
             Debug.DrawRay(origin, moveDirection * wallDetectDistance);
-            if (Physics.Raycast(origin, moveDirection, out RaycastHit hit, wallDetectDistance))
+            if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDistance))
             {
                 cameraManager.wallCameraObject.SetActive(true);
                 cameraManager.mainCameraObject.SetActive(false);
 
+                controller.isWall = true;
                 controller.Wallmovement(moveDirection, hit.normal, delta);
-                //Debug.Log("Chocando con pared");
-                //if()
             }
             else
             {
+                controller.isWall = false;
+
                 cameraManager.wallCameraObject.SetActive(false);
                 cameraManager.mainCameraObject.SetActive(true);
-                controller.Move(moveDirection, delta);            
+                controller.Move(moveDirection, delta);
+                controller.HandleMovementAnimations(moveAmount, delta);
             }
             
         }
