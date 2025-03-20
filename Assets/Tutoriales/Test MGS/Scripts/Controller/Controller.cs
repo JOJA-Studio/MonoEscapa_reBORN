@@ -10,6 +10,7 @@ namespace SA
     {
         new Rigidbody rigidbody;
         public float moveSpeed = .4f;
+        public float proneSpeed = .4f;
         public float wallSpeed = .4f;
         public float rotateSpeed = .2f;
         public float wallCheckDis = .2f;
@@ -31,11 +32,15 @@ namespace SA
 
         public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta)
         {
+            //float dot = Vector3.Dot(moveDirection, Vector3.forward);
+            //Debug.Log(dot);
+            //moveDirection *= (dot < -0.8f) ? -1 : 1;
 
             Vector3 projectvel = Vector3.ProjectOnPlane(moveDirection, normal);
             Debug.DrawRay(mtransform.position, projectvel,Color.blue);
             Vector3 relativeDir = mtransform.InverseTransformDirection(projectvel);
-            
+
+
             Vector3 origin = mtransform.position;
             origin.y += 1;
 
@@ -87,12 +92,34 @@ namespace SA
             rigidbody.velocity = moveDirection * moveSpeed;            
         }
 
-        public void CrouchMovement(Vector3 moveDirection, float delta)
+        public void CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
         {
             float dot = Vector3.Dot(moveDirection, mtransform.forward);
+            HandleMovementAnimations(moveAmount, delta);
             if (dot > 0)
-            { 
-            
+            {
+                Debug.DrawRay(mtransform.position, moveDirection);
+                rigidbody.velocity = moveDirection * proneSpeed;
+
+
+                if (moveAmount > 0)
+                { 
+                    animator.SetBool("isProne", true);
+                    HandleRotation(moveDirection, delta);
+                    animator.SetBool("canRotate", false);
+                }
+            }
+            else
+            {
+                if (moveAmount > 0)
+                { 
+                    animator.SetBool("isProne", false);
+
+                    if (animator.GetBool("canRotate"))
+                    { 
+                         HandleRotation(moveDirection, delta);                    
+                    }
+                }
             }
         }
 

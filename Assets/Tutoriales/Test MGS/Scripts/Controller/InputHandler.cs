@@ -49,8 +49,8 @@ namespace SA
             }
 
             moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
-            moveDirection = camHolder.forward * vertical;
-            moveDirection += camHolder.right * horizontal;
+            moveDirection = Vector3.forward * vertical;
+            moveDirection += Vector3.right * horizontal;
             moveDirection.Normalize();
 
             float delta = Time.deltaTime;
@@ -68,34 +68,31 @@ namespace SA
             Vector3 origin = controller.transform.position;
             origin.y += 1;
 
-            if (controller.isCrouch)
-            { 
-            
+            Debug.DrawRay(origin, moveDirection * wallDetectDistance);
+            if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDistance))
+            {
+                cameraManager.wallCameraObject.SetActive(true);
+                cameraManager.mainCameraObject.SetActive(false);
+
+                controller.isWall = true;
+                controller.Wallmovement(moveDirection, hit.normal, delta);
             }
             else
-            {               
-                Debug.DrawRay(origin, moveDirection * wallDetectDistance);
-                if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDistance))
+            {
+                controller.isWall = false;
+                cameraManager.wallCameraObject.SetActive(false);
+                cameraManager.mainCameraObject.SetActive(true);
+                if (controller.isCrouch)
                 {
-                    cameraManager.wallCameraObject.SetActive(true);
-                    cameraManager.mainCameraObject.SetActive(false);
-
-                    controller.isWall = true;
-                    controller.Wallmovement(moveDirection, hit.normal, delta);
+                    controller.CrouchMovement(moveDirection, delta, moveAmount);
                 }
                 else
                 {
-                    controller.isWall = false;
-
-                    cameraManager.wallCameraObject.SetActive(false);
-                    cameraManager.mainCameraObject.SetActive(true);
                     controller.Move(moveDirection, delta);
                     controller.HandleRotation(moveDirection, delta);
-                    controller.HandleMovementAnimations(moveAmount, delta);
+                    controller.HandleMovementAnimations(moveAmount, delta); 
                 }
-            }
-
-            
+            }            
         }
     }
 
