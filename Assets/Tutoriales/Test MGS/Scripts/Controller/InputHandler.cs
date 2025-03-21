@@ -20,6 +20,8 @@ namespace SA
         float vertical;
         float moveAmount;
 
+        LayerMask ignoreForWall;
+
         public enum ExecutionOrder { 
             fixedUpdate, update, lateUpdate
         }
@@ -28,6 +30,8 @@ namespace SA
         {
             cameraManager.wallCameraObject.SetActive(false);
             cameraManager.mainCameraObject.SetActive(true);
+
+            ignoreForWall = ~(1 << 11);
         }
 
         private void FixedUpdate()
@@ -69,13 +73,13 @@ namespace SA
             origin.y += 1;
 
             Debug.DrawRay(origin, moveDirection * wallDetectDistance);
-            if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDistance))
+            if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDistance, ignoreForWall))
             {
                 cameraManager.wallCameraObject.SetActive(true);
                 cameraManager.mainCameraObject.SetActive(false);
 
                 controller.isWall = true;
-                controller.Wallmovement(moveDirection, hit.normal, delta);
+                controller.Wallmovement(moveDirection, hit.normal, delta, ignoreForWall);
             }
             else
             {

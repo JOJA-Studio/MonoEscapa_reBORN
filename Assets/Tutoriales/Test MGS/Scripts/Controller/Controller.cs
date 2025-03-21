@@ -30,7 +30,7 @@ namespace SA
             animator = GetComponentInChildren<Animator>();
         }
 
-        public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta)
+        public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layermask)
         {
             //float dot = Vector3.Dot(moveDirection, Vector3.forward);
             //Debug.Log(dot);
@@ -53,7 +53,7 @@ namespace SA
 
 
                 Debug.DrawRay(origin, -normal, Color.red);
-                if (Physics.Raycast(origin, -normal, out RaycastHit hit, 2))
+                if (Physics.Raycast(origin, -normal, out RaycastHit hit, 2, layermask))
                 {
 
                 }
