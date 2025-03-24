@@ -20,6 +20,8 @@ public class AIController : MonoBehaviour
 
     float waitTimer;
 
+    public float normalSpeed = 2;
+    public float aggresiveSpeed = 4;
     public float rotateSpeed = .5f;
     public float fovRadius = 20;
     public float fovAngle = 45;
@@ -47,12 +49,14 @@ public class AIController : MonoBehaviour
         if (!isAgressive)
         {
             //Debug.Log(delta);
+            agent.speed = normalSpeed;
             HandleDetection();
             HandleNormalLogic(delta);
         }
         else
         {
-            
+            agent.speed = aggresiveSpeed;
+            HandleAggresiveLogic(delta);
         }
     }
 
@@ -65,7 +69,7 @@ public class AIController : MonoBehaviour
         Debug.Log(dis);
         if (dis > agent.stoppingDistance)
         {
-            //animator.SetFloat("movement", 1, .2f, delta);
+            //animator.SetFloat("movement", 1, .1f, delta);
 
             agent.updateRotation = true;
             if (agent.hasPath == false)
@@ -74,8 +78,8 @@ public class AIController : MonoBehaviour
         else
         {
             Debug.Log("Entra a else");
-            //animator.SetFloat("movement", 0, .2f, delta);
 
+            //animator.SetFloat("movement", 0, .1f, delta);
             agent.updateRotation = false;
             Quaternion targetRot = Quaternion.Euler(currentWaypoint.lookEulers);
             mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
@@ -99,28 +103,57 @@ public class AIController : MonoBehaviour
 
     void HandleAggresiveLogic(float delta)
     {
-        if (RaycastToTarget(currentTarget))
+        if (currentTarget != null)
         {
-            currentTarget = null;
+            if (!RaycastToTarget(currentTarget))
+            { 
+                currentTarget = null;
+            }
         }
 
         float dis = Vector3.Distance(lastKnownPosition, mTransform.position);
-        
         agent.SetDestination(lastKnownPosition);
-        if (dis < attackDistance)
-        {
-            agent.isStopped = true;
 
-            if (currentTarget != null)
+
+        if (currentTarget != null)
+        {
+            if (dis < attackDistance)
             {
+                agent.isStopped = true;
+
+
                 Debug.Log("Attack");
+                Vector3 dir = currentTarget.transform.position - mTransform.position;
+                dir.y = 0;
+                //dir.Normalize();
+
+                Quaternion targetRot = Quaternion.LookRotation(dir);
+                mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
+                agent.updateRotation = false;
+            }
+            else
+            {
+                agent.updateRotation = true;
+                agent.isStopped = false;
+                HandleDetection();
             }
         }
         else
         {
+            agent.updateRotation = true;
             agent.isStopped = false;
+            HandleDetection();
         }
-        
+
+        if (agent.desiredVelocity.magnitude > 0)
+        {
+            //animator.SetFloat("movement", 1, .1f, delta);
+        }
+        else
+        {
+            //animator.SetFloat("movement", 0, .1f, delta);
+        }
+
 
     }
 
@@ -143,6 +176,7 @@ public class AIController : MonoBehaviour
                 {
                     currentTarget = targetController;
                     isAgressive = true;
+                    //animator.SetBool("isAggresive", true);
                     lastKnownPosition = currentTarget.transform.position;
                     return true;
                 }
