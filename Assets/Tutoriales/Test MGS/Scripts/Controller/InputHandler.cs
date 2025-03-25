@@ -46,6 +46,7 @@ namespace SA
         {
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
+            controller.isAiming = Input.GetMouseButton(1);
 
             if (Input.GetKeyDown(KeyCode.C))
             {
@@ -59,11 +60,23 @@ namespace SA
 
             float delta = Time.deltaTime;
 
-            if (movementOrder == ExecutionOrder.update)
-            {
-                HandleMovement(moveDirection, delta);
-            }
 
+
+
+            if (controller.isAiming)
+            {
+                controller.isWall = false;
+                controller.isCrouch = false;
+                controller.rigidbody.velocity = Vector3.zero;
+                controller.HandleRotation(moveDirection, delta);
+            }
+            else
+            {
+                if (movementOrder == ExecutionOrder.update)
+                {
+                    HandleMovement(moveDirection, delta);
+                }
+            }
             controller.HandleAnimationStates();
         }
 
@@ -71,6 +84,7 @@ namespace SA
         {
             Vector3 origin = controller.transform.position;
             origin.y += 1;
+
 
             Debug.DrawRay(origin, moveDirection * wallDetectDistance);
             if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDistance, ignoreForWall))

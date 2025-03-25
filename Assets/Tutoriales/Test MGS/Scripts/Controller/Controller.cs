@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.XR;
 
 
 namespace SA
 { 
     public class Controller : MonoBehaviour
     {
-        new Rigidbody rigidbody;
+        public new Rigidbody rigidbody;
         public float moveSpeed = .4f;
         public float proneSpeed = .4f;
         public float wallSpeed = .4f;
@@ -17,7 +18,10 @@ namespace SA
         [HideInInspector]
         public Transform mtransform;
         Animator animator;
+        [HideInInspector]
+        public InventoryManager inventoryManager;
 
+        public bool isAiming;
         public bool isWall;
         public bool isCrouch;
         public bool isProne;
@@ -28,6 +32,7 @@ namespace SA
             mtransform = this.transform;
             rigidbody = GetComponent<Rigidbody>();
             animator = GetComponentInChildren<Animator>();
+            inventoryManager = GetComponent<InventoryManager>();
         }
 
         public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layermask)
@@ -135,6 +140,8 @@ namespace SA
         {
             animator.SetBool("isCrouch", isCrouch);
             animator.SetBool("isWall", isWall);
+            animator.SetBool("isAiming", isAiming);
+            inventoryManager.currentweapon.model.SetActive(isAiming);
         }
 
         public void HandleMovementAnimations(float moveAmount, float delta)

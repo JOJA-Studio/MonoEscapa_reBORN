@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public Weapon currentweapon;
+}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+[System.Serializable]
+public class Weapon
+{
+    public GameObject model;
+    public bool canMoveWithWeapon;
 }
