@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.XR;
+using static Interfaces;
 
 
 namespace SA
@@ -15,6 +16,7 @@ namespace SA
         public float wallSpeed = .4f;
         public float rotateSpeed = .2f;
         public float wallCheckDis = .2f;
+        public float aimSpeed = 1;
         [HideInInspector]
         public Transform mtransform;
         Animator animator;
@@ -93,8 +95,11 @@ namespace SA
 
         public void Move(Vector3 moveDirection, float delta)
         {
+            float speed = moveSpeed;
+            if(isAiming)
+                speed = aimSpeed;
 
-            rigidbody.velocity = moveDirection * moveSpeed;            
+            rigidbody.velocity = moveDirection * speed;            
         }
 
         public void CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
@@ -157,6 +162,44 @@ namespace SA
            
 
             animator.SetFloat("movement", m, 0.1f, delta);
+        }
+
+        float lastShot;
+
+        public void HandleShooting()
+        {
+            if (Time.realtimeSinceStartup - lastShot > inventoryManager.currentweapon.fireRate)
+            { 
+                lastShot = Time.realtimeSinceStartup;
+                inventoryManager.currentweapon.muzzle.Play();
+
+                RaycastHit hit;
+                Vector3 origin = Random.insideUnitCircle * inventoryManager.currentweapon.weaponSpread;
+                origin = mtransform.TransformPoint(origin);
+                origin.y += 1.3f;
+                //origin += randomPosition;
+                Debug.DrawRay(origin, mtransform.forward * 100, Color.white);
+
+                if (Physics.Raycast(origin, mtransform.forward, out hit, 100))
+                {
+                    IShootable shootable = hit.transform.GetComponentInParent<IShootable>();
+                    if (shootable != null)
+                    {
+                        GameObject fx = GameReferences.objectPooler.GetObject(shootable.GetHitFx());
+                        fx.transform.position = hit.point;
+                        fx.transform.rotation = Quaternion.LookRotation(hit.normal);
+                        fx.SetActive(true);
+                        Debug.Log("HIT OPONENT");
+                    }
+                    else
+                    {
+                        GameObject fx = GameReferences.objectPooler.GetObject("default");
+                        fx.transform.position = hit.point;
+                        fx.transform.rotation = Quaternion.LookRotation(hit.normal);
+                        fx.SetActive(true);
+                    }
+                }
+            }
         }
     }
 }

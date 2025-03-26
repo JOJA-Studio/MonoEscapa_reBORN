@@ -12,4 +12,7 @@ public class Weapon
 {
     public GameObject model;
     public bool canMoveWithWeapon;
+    public float fireRate = .15f;
+    public ParticleSystem muzzle;
+    public float weaponSpread = .2f;
 }

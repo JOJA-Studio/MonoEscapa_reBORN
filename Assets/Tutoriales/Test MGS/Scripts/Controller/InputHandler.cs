@@ -22,6 +22,8 @@ namespace SA
 
         LayerMask ignoreForWall;
 
+        
+
         public enum ExecutionOrder { 
             fixedUpdate, update, lateUpdate
         }
@@ -67,8 +69,23 @@ namespace SA
             {
                 controller.isWall = false;
                 controller.isCrouch = false;
-                controller.rigidbody.velocity = Vector3.zero;
                 controller.HandleRotation(moveDirection, delta);
+
+                if (Input.GetMouseButton(0))
+                {
+                    controller.HandleShooting();
+                }
+
+                if (controller.inventoryManager.currentweapon.canMoveWithWeapon)
+                {
+                    controller.Move(moveDirection, delta);
+                    controller.HandleMovementAnimations(moveAmount, delta);
+                }
+                else
+                {
+                    controller.HandleMovementAnimations(0, delta);
+                    controller.rigidbody.velocity = Vector3.zero;
+                }
             }
             else
             {

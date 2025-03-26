@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using static Interfaces;
 
-public class AIController : MonoBehaviour
+public class AIController : MonoBehaviour, IShootable
 {
 
     NavMeshAgent agent;
@@ -212,6 +213,18 @@ public class AIController : MonoBehaviour
                 
             }
         }
+    }
+
+    public void OnHit()
+    {
+        
+    }
+
+    public string hitFx = "blood";
+
+    public string GetHitFx()
+    {
+        return hitFx;
     }
 }
 
