@@ -173,32 +173,7 @@ namespace SA
                 lastShot = Time.realtimeSinceStartup;
                 inventoryManager.currentweapon.muzzle.Play();
 
-                RaycastHit hit;
-                Vector3 origin = Random.insideUnitCircle * inventoryManager.currentweapon.weaponSpread;
-                origin = mtransform.TransformPoint(origin);
-                origin.y += 1.3f;
-                //origin += randomPosition;
-                Debug.DrawRay(origin, mtransform.forward * 100, Color.white);
-
-                if (Physics.Raycast(origin, mtransform.forward, out hit, 100))
-                {
-                    IShootable shootable = hit.transform.GetComponentInParent<IShootable>();
-                    if (shootable != null)
-                    {
-                        GameObject fx = GameReferences.objectPooler.GetObject(shootable.GetHitFx());
-                        fx.transform.position = hit.point;
-                        fx.transform.rotation = Quaternion.LookRotation(hit.normal);
-                        fx.SetActive(true);
-                        Debug.Log("HIT OPONENT");
-                    }
-                    else
-                    {
-                        GameObject fx = GameReferences.objectPooler.GetObject("default");
-                        fx.transform.position = hit.point;
-                        fx.transform.rotation = Quaternion.LookRotation(hit.normal);
-                        fx.SetActive(true);
-                    }
-                }
+                GameReferences.RaycastShoot(mtransform, inventoryManager.currentweapon.weaponSpread);
             }
         }
     }

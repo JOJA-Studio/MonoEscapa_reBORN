@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
 using static Interfaces;
 
 public class AIController : MonoBehaviour, IShootable
@@ -102,6 +103,9 @@ public class AIController : MonoBehaviour, IShootable
         
     }
 
+    public float fireRate = .1f;
+    float currentFire;
+
     void HandleAggresiveLogic(float delta)
     {
         if (currentTarget != null)
@@ -131,6 +135,16 @@ public class AIController : MonoBehaviour, IShootable
                 Quaternion targetRot = Quaternion.LookRotation(dir);
                 mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
                 agent.updateRotation = false;
+
+                if (currentFire < 0)
+                {
+                    currentFire = fireRate;
+                    HandleShooting();
+                }
+                else
+                {
+                    currentFire -= delta;
+                }
             }
             else
             {
@@ -156,6 +170,15 @@ public class AIController : MonoBehaviour, IShootable
         }
 
 
+    }
+
+    public ParticleSystem muzzleFire;
+    public float weaponSpread = .3f;
+
+    void HandleShooting()
+    {
+        muzzleFire.Play();
+        GameReferences.RaycastShoot(mTransform, weaponSpread);
     }
 
     bool RaycastToTarget(Controller c)
