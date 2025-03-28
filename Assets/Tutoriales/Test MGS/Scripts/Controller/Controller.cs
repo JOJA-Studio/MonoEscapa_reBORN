@@ -8,7 +8,7 @@ using static Interfaces;
 
 namespace SA
 { 
-    public class Controller : MonoBehaviour
+    public class Controller : MonoBehaviour, IShootable
     {
         public new Rigidbody rigidbody;
         public float moveSpeed = .4f;
@@ -39,18 +39,23 @@ namespace SA
 
         public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layermask)
         {
-            //float dot = Vector3.Dot(moveDirection, Vector3.forward);
+            float dot = Vector3.Dot(moveDirection, Vector3.forward);
             //Debug.Log(dot);
             //moveDirection *= (dot < -0.8f) ? -1 : 1;
+            if (dot < 0)
+            {
+                moveDirection.x *= -1;
+            }
+            HandleRotation(-normal, delta);
 
+            //moveDirection = mtransform.InverseTransformDirection(moveDirection);//mtransform.right * horizontal;
             Vector3 projectvel = Vector3.ProjectOnPlane(moveDirection, normal);
             Debug.DrawRay(mtransform.position, projectvel,Color.blue);
-            Vector3 relativeDir = mtransform.InverseTransformDirection(projectvel);
 
+            Vector3 relativeDir = mtransform.InverseTransformDirection(projectvel);
 
             Vector3 origin = mtransform.position;
             origin.y += 1;
-
             if ((Mathf.Abs(relativeDir.x) > 0.01f))
             {
                 if (relativeDir.x > 0)
@@ -77,7 +82,7 @@ namespace SA
             }
 
             rigidbody.velocity = projectvel * wallSpeed; 
-            HandleRotation(-normal, delta);
+
 
             float m = 0;
             Debug.Log(relativeDir);
@@ -175,6 +180,18 @@ namespace SA
 
                 GameReferences.RaycastShoot(mtransform, inventoryManager.currentweapon.weaponSpread);
             }
+        }
+
+        public void OnHit()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public string hitFx = "blood";
+
+        public string GetHitFx()
+        {
+            return hitFx;
         }
     }
 }

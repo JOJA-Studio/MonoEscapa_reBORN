@@ -19,3 +19,7 @@ MonoBehaviour:
   - poolId: default
     prefab: {fileID: 1000010844420130, guid: 4edabb1c0dde62743b137378c7d22980, type: 3}
     budget: 4
+  - poolId: bulletLine
+    prefab: {fileID: 7986292887573060281, guid: 5306515d3f43b054cb529a46e73aa3b0,
+      type: 3}
+    budget: 10

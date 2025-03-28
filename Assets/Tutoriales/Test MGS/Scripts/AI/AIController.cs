@@ -127,7 +127,7 @@ public class AIController : MonoBehaviour, IShootable
                 agent.isStopped = true;
 
 
-                Debug.Log("Attack");
+                Debug.Log("Attack"); 
                 Vector3 dir = currentTarget.transform.position - mTransform.position;
                 dir.y = 0;
                 //dir.Normalize();
@@ -240,7 +240,7 @@ public class AIController : MonoBehaviour, IShootable
 
     public void OnHit()
     {
-        
+        throw new System.NotImplementedException();
     }
 
     public string hitFx = "blood";

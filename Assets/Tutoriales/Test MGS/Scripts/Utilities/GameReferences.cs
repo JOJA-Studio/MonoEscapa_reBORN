@@ -24,8 +24,11 @@ public static class GameReferences
         Vector3 origin = Random.insideUnitCircle * spread;
         origin = mTransform.TransformPoint(origin);
         origin.y += 1.3f;
+        origin += mTransform.forward;
         //origin += randomPosition;
         Debug.DrawRay(origin, mTransform.forward * 100, Color.white);
+
+        Vector3 endPosition = origin + mTransform.forward * 100;
 
         if (Physics.Raycast(origin, mTransform.forward, out hit, 100))
         {
@@ -45,6 +48,12 @@ public static class GameReferences
                 fx.transform.rotation = Quaternion.LookRotation(hit.normal);
                 fx.SetActive(true);
             }
+            endPosition = hit.point;
         }
+        GameObject go = objectPooler.GetObject("bulletLine");
+        LineRenderer line  = go.GetComponent<LineRenderer>();
+        line.SetPosition(0, origin);
+        line.SetPosition(1, endPosition);
+        go.SetActive(true);
     }
 }
