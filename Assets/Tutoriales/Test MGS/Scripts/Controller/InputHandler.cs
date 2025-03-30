@@ -19,9 +19,8 @@ namespace SA
         float horizontal;
         float vertical;
         float moveAmount;
-
+        bool freeLook;
         LayerMask ignoreForWall;
-
         
 
         public enum ExecutionOrder { 
@@ -32,7 +31,8 @@ namespace SA
         {
             cameraManager.wallCameraObject.SetActive(false);
             cameraManager.mainCameraObject.SetActive(true);
-
+            cameraManager.fpsCameraObject.SetActive(false);
+            cameraManager.mainCamera.cullingMask = ~0;
             ignoreForWall = ~(1 << 11);
         }
 
@@ -49,56 +49,91 @@ namespace SA
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
             controller.isAiming = Input.GetMouseButton(1);
+            freeLook = Input.GetKey(KeyCode.F);
 
-            if (Input.GetKeyDown(KeyCode.C))
+            if (freeLook)
             {
-                controller.isCrouch = !controller.isCrouch;
-            }
+                if (controller.isFreelook == false)
+                {
+                    controller.isFreelook = true;
+                    controller.isAiming = false;
+                    controller.isProne = false;
+                    cameraManager.fpsCameraObject.SetActive(true);
+                    //controller.meshRenderer.enabled = false;
+                    controller.rigidbody.velocity = Vector3.zero;
+                    cameraManager.mainCamera.cullingMask = ~(1 << 12);
+                }
 
+            }
+            else
+            {
+                if (controller.isFreelook)
+                {
+                    controller.isFreelook = false;
+                    cameraManager.fpsCameraObject.SetActive(false);
+                    //controller.meshRenderer.enabled = true;
+                    cameraManager.mainCamera.cullingMask = ~0;
+                }
+            }
+            
             moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
+            
             moveDirection = Vector3.forward * vertical;
             moveDirection += Vector3.right * horizontal;
             moveDirection.Normalize();
 
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                controller.isCrouch = !controller.isCrouch;
+                moveDirection = Vector3.zero;
+            }
+
             float delta = Time.deltaTime;
 
-
-
-
-            if (controller.isAiming)
+            if (controller.isFreelook)
             {
-                controller.isWall = false;
-                controller.isCrouch = false;
-                controller.HandleRotation(moveDirection, delta);
-
-                if (Input.GetMouseButton(0))
-                {
-                    controller.HandleShooting();
-                }
-
-                if (controller.inventoryManager.currentweapon.canMoveWithWeapon)
-                {
-                    controller.Move(moveDirection, delta);
-                    controller.HandleMovementAnimations(moveAmount, delta);
-                }
-                else
-                {
-                    controller.HandleMovementAnimations(0, delta);
-                    controller.rigidbody.velocity = Vector3.zero;
-                }
+                controller.FPSRotate(horizontal, delta);
             }
             else
             {
-                if (movementOrder == ExecutionOrder.update)
+                if (controller.isAiming)
                 {
-                    HandleMovement(moveDirection, delta);
+                    controller.isWall = false;
+                    controller.isCrouch = false;
+                    controller.HandleRotation(moveDirection, delta);
+
+                    if (Input.GetMouseButton(0))
+                    {
+                        controller.HandleShooting();
+                    }
+
+                    if (controller.inventoryManager.currentweapon.canMoveWithWeapon)
+                    {
+                        controller.Move(moveDirection, delta);
+                        controller.HandleMovementAnimations(moveAmount, delta);
+                    }
+                    else
+                    {
+                        controller.HandleMovementAnimations(0, delta);
+                        controller.rigidbody.velocity = Vector3.zero;
+                    }
+                }
+                else
+                {
+                    if (movementOrder == ExecutionOrder.update)
+                    {
+                        HandleMovement(moveDirection, delta);
+                    }
                 }
             }
+
             controller.HandleAnimationStates();
         }
 
         void HandleMovement(Vector3 moveDirection, float delta)
         {
+
+
             Vector3 origin = controller.transform.position;
             origin.y += 1;
 
@@ -108,7 +143,7 @@ namespace SA
             {
                 cameraManager.wallCameraObject.SetActive(true);
                 cameraManager.mainCameraObject.SetActive(false);
-
+                controller.isProne = false; 
                 controller.isWall = true;
                 controller.Wallmovement(moveDirection, hit.normal, delta, ignoreForWall);
             }

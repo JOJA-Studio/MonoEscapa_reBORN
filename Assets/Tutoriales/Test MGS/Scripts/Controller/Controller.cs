@@ -15,6 +15,7 @@ namespace SA
         public float proneSpeed = .4f;
         public float wallSpeed = .4f;
         public float rotateSpeed = .2f;
+        public float fpsRotateSpeed = .2f;
         public float wallCheckDis = .2f;
         public float aimSpeed = 1;
         [HideInInspector]
@@ -25,8 +26,10 @@ namespace SA
 
         public bool isAiming;
         public bool isWall;
+        public bool isFreelook;
         public bool isCrouch;
         public bool isProne;
+        public SkinnedMeshRenderer meshRenderer;
 
 
         private void Start()
@@ -35,6 +38,7 @@ namespace SA
             rigidbody = GetComponent<Rigidbody>();
             animator = GetComponentInChildren<Animator>();
             inventoryManager = GetComponent<InventoryManager>();
+            meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         }
 
         public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layermask)
@@ -46,7 +50,7 @@ namespace SA
             {
                 moveDirection.x *= -1;
             }
-            HandleRotation(-normal, delta);
+            HandleRotation(normal, delta);
 
             //moveDirection = mtransform.InverseTransformDirection(moveDirection);//mtransform.right * horizontal;
             Vector3 projectvel = Vector3.ProjectOnPlane(moveDirection, normal);
@@ -85,7 +89,7 @@ namespace SA
 
 
             float m = 0;
-            Debug.Log(relativeDir);
+            //Debug.Log(relativeDir);
             m = relativeDir.x;
             if (m < 0.1f && m > 0.1f)
             {
@@ -95,11 +99,16 @@ namespace SA
             {
                 m = (m < 0) ? -1 : 1;
             }
-            animator.SetFloat("movement", m, 0.1f, delta);
+            //animator.SetFloat("movement", m, 0.1f, delta);
         }
 
         public void Move(Vector3 moveDirection, float delta)
         {
+            if (animator.GetBool("canRotate"))
+            {
+                moveDirection = Vector3.zero;
+            }
+             
             float speed = moveSpeed;
             if(isAiming)
                 speed = aimSpeed;
@@ -119,7 +128,7 @@ namespace SA
 
                 if (moveAmount > 0)
                 { 
-                    animator.SetBool("isProne", true);
+                    isProne = true;
                     HandleRotation(moveDirection, delta);
                     animator.SetBool("canRotate", false);
                 }
@@ -128,10 +137,11 @@ namespace SA
             {
                 if (moveAmount > 0)
                 { 
-                    animator.SetBool("isProne", false);
+                    isProne = false;
 
                     if (animator.GetBool("canRotate"))
                     { 
+                        rigidbody.velocity = Vector3.zero;
                          HandleRotation(moveDirection, delta);                    
                     }
                 }
@@ -146,11 +156,20 @@ namespace SA
             mtransform.rotation = Quaternion.Slerp(mtransform.rotation, lookRotation, delta / rotateSpeed);
         }
 
+        public void FPSRotate(float horizontal, float delta)
+        {
+            Vector3 targetEuler = mtransform.eulerAngles;
+            targetEuler.y += horizontal * delta / fpsRotateSpeed;
+
+            mtransform.eulerAngles = targetEuler;
+        }
+
         public void HandleAnimationStates()
         {
             animator.SetBool("isCrouch", isCrouch);
             animator.SetBool("isWall", isWall);
             animator.SetBool("isAiming", isAiming);
+            animator.SetBool("isProne", isProne);
             inventoryManager.currentweapon.model.SetActive(isAiming);
         }
 
