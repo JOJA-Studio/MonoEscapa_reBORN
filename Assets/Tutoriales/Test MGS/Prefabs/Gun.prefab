@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3605363415529351019}
   - component: {fileID: 7861372123686284475}
   - component: {fileID: 8868027515383958460}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: MuzzleFlashEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4794,7 +4794,7 @@ GameObject:
   - component: {fileID: 3357696181864194849}
   - component: {fileID: 5205531765522479433}
   - component: {fileID: 8033489913141423142}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4875,13 +4875,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5337379562986415414}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5337379562986415414
 Transform:
   m_ObjectHideFlags: 0
@@ -4890,7 +4890,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3509269158701669284}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.49999925, y: 0.50000125, z: 0.4999982, w: 0.5000013}
+  m_LocalRotation: {x: -0.5, y: 0.5, z: 0.5, w: 0.5}
   m_LocalPosition: {x: -0.02, y: 0.15, z: 0.033}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4910,7 +4910,7 @@ GameObject:
   - component: {fileID: 4558959256968475045}
   - component: {fileID: 451009806330967014}
   - component: {fileID: 1884739141881819707}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4991,7 +4991,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3917809223705644243}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Visuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5027,7 +5027,7 @@ GameObject:
   - component: {fileID: 4389995348691985765}
   - component: {fileID: 2766239876211886663}
   - component: {fileID: 4521301301449438507}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
