@@ -29,7 +29,9 @@ namespace SA
         public bool isFreelook;
         public bool isCrouch;
         public bool isProne;
-        public SkinnedMeshRenderer meshRenderer;
+        public float wallCamXPos = 1;
+        public Transform wallCamParent;
+        public Vector3 startWallCamPosition;
 
 
         private void Start()
@@ -38,12 +40,13 @@ namespace SA
             rigidbody = GetComponent<Rigidbody>();
             animator = GetComponentInChildren<Animator>();
             inventoryManager = GetComponent<InventoryManager>();
-            meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+            startWallCamPosition = wallCamParent.localPosition;
         }
 
         public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layermask)
         {
             float dot = Vector3.Dot(moveDirection, Vector3.forward);
+            Vector3 wallCamTargetPosition = startWallCamPosition;
             //Debug.Log(dot);
             //moveDirection *= (dot < -0.8f) ? -1 : 1;
             if (dot < 0)
@@ -76,6 +79,7 @@ namespace SA
                 else
                 {
                     projectvel = Vector3.zero;
+                    wallCamTargetPosition.x = wallCamXPos * ((relativeDir.x < 0)? -1:1);
                     relativeDir.x = 0;
                 }
             }
@@ -100,6 +104,8 @@ namespace SA
                 m = (m < 0) ? -1 : 1;
             }
             //animator.SetFloat("movement", m, 0.1f, delta);
+
+            wallCamParent.localPosition = Vector3.Lerp(wallCamParent.localPosition, wallCamTargetPosition, delta / 0.2f);
         }
 
         public void Move(Vector3 moveDirection, float delta)

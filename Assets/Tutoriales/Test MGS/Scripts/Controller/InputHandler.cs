@@ -15,13 +15,15 @@ namespace SA
 
         Vector3 moveDirection;
         public float wallDetectDistance = .5f;
-
+        public float wallDetectDistanceOnWall = 1.2f;
+        public float wallAngleTreshold = 35;
         float horizontal;
         float vertical;
         float moveAmount;
         bool freeLook;
         LayerMask ignoreForWall;
         
+
 
         public enum ExecutionOrder { 
             fixedUpdate, update, lateUpdate
@@ -85,7 +87,8 @@ namespace SA
             if (Input.GetKeyDown(KeyCode.C))
             {
                 controller.isCrouch = !controller.isCrouch;
-                moveDirection = Vector3.zero;
+                if (!controller.isWall)
+                    moveDirection = Vector3.zero;
             }
 
             float delta = Time.deltaTime;
@@ -98,7 +101,7 @@ namespace SA
             {
                 if (controller.isAiming)
                 {
-                    controller.isWall = false;
+                    //controller.isWall = false;
                     controller.isCrouch = false;
                     controller.HandleRotation(moveDirection, delta);
 
@@ -139,19 +142,40 @@ namespace SA
 
 
             Debug.DrawRay(origin, moveDirection * wallDetectDistance);
+
+            bool willStickToWall = false;
+            Vector3 wallNormal = Vector3.zero;
+
+            float detectDis = wallDetectDistance;
+            if (controller.isWall)
+            {
+                detectDis = wallDetectDistanceOnWall; 
+            }
+
+            Debug.DrawRay(origin, moveDirection * detectDis);
+
             if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDistance, ignoreForWall))
             {
-                cameraManager.wallCameraObject.SetActive(true);
-                cameraManager.mainCameraObject.SetActive(false);
+                    willStickToWall = true;
+                    wallNormal = hit.normal;
+                //    Debug.Log(hit.transform.name);
+            }
+            
+            if (willStickToWall)
+            {
                 controller.isProne = false; 
                 controller.isWall = true;
-                controller.Wallmovement(moveDirection, hit.normal, delta, ignoreForWall);
+                controller.Wallmovement(moveDirection, wallNormal, delta, ignoreForWall);
+                cameraManager.wallCameraObject.SetActive(true);
+                cameraManager.mainCameraObject.SetActive(false);
             }
             else
             {
+
                 controller.isWall = false;
                 cameraManager.wallCameraObject.SetActive(false);
                 cameraManager.mainCameraObject.SetActive(true);
+
                 if (controller.isCrouch)
                 {
                     controller.CrouchMovement(moveDirection, delta, moveAmount);
