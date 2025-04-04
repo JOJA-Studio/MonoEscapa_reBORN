@@ -19,6 +19,10 @@ public class AIController : MonoBehaviour, IShootable
     Transform mTransform;
 
     public bool isAgressive;
+    public bool isCaution;
+    public float cautionTimerNormal = 0.7f;
+    public float cautionTimerAggerssive = 0.4f;
+    float cautionTimer;
 
     float waitTimer;
 
@@ -57,8 +61,25 @@ public class AIController : MonoBehaviour, IShootable
         }
         else
         {
-            agent.speed = aggresiveSpeed;
-            HandleAggresiveLogic(delta);
+            if (isCaution)
+            {
+                if (cautionTimer < 0)
+                { 
+                    isCaution = false;
+                    //animator.SetBool("caution", false);
+                }
+                else
+                {
+                    agent.isStopped = true;
+                    cautionTimer -= delta;
+                }
+            }
+            else
+            {
+                agent.speed = aggresiveSpeed;
+                HandleAggresiveLogic(delta);
+            }
+
         }
     }
 
@@ -200,7 +221,7 @@ public class AIController : MonoBehaviour, IShootable
                 {
                     currentTarget = targetController;
                     isAgressive = true;
-                    animator.SetBool("isAggresive", true);
+                    animator.SetBool("isAggressive", true);
                     lastKnownPosition = currentTarget.transform.position;
                     return true;
                 }
