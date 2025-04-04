@@ -68,10 +68,10 @@ public class AIController : MonoBehaviour, IShootable
         //Debug.Log(currentWaypoint);
 
         float dis = Vector3.Distance(mTransform.position, currentWaypoint.tragetPosition.position);
-        Debug.Log(dis);
+        //Debug.Log(dis);
         if (dis > agent.stoppingDistance)
         {
-            //animator.SetFloat("movement", 1, .1f, delta);
+            animator.SetFloat("movement", 1, .1f, delta);
 
             agent.updateRotation = true;
             if (agent.hasPath == false)
@@ -81,7 +81,7 @@ public class AIController : MonoBehaviour, IShootable
         {
             Debug.Log("Entra a else");
 
-            //animator.SetFloat("movement", 0, .1f, delta);
+            animator.SetFloat("movement", 0, .1f, delta);
             agent.updateRotation = false;
             Quaternion targetRot = Quaternion.Euler(currentWaypoint.lookEulers);
             mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
@@ -162,11 +162,11 @@ public class AIController : MonoBehaviour, IShootable
 
         if (agent.desiredVelocity.magnitude > 0)
         {
-            //animator.SetFloat("movement", 1, .1f, delta);
+            animator.SetFloat("movement", 1, .1f, delta);
         }
         else
         {
-            //animator.SetFloat("movement", 0, .1f, delta);
+            animator.SetFloat("movement", 0, .1f, delta);
         }
 
 
@@ -200,7 +200,7 @@ public class AIController : MonoBehaviour, IShootable
                 {
                     currentTarget = targetController;
                     isAgressive = true;
-                    //animator.SetBool("isAggresive", true);
+                    animator.SetBool("isAggresive", true);
                     lastKnownPosition = currentTarget.transform.position;
                     return true;
                 }

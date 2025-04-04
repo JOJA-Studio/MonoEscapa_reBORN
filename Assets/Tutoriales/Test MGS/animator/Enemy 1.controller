@@ -9,7 +9,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: isAggressive
+    m_ConditionEvent: isAggresive
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2107849281374648483}
@@ -34,7 +34,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 2
-    m_ConditionEvent: isAggressive
+    m_ConditionEvent: isAggresive
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 8187001133269236851}
@@ -59,7 +59,7 @@ BlendTree:
   m_Name: Blend Tree
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: cdc90daa66c302e4087a6a7450631c35,
+    m_Motion: {fileID: -203655887218126122, guid: edb8b2975d47dfa48a201ceae237324f,
       type: 3}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
@@ -68,7 +68,7 @@ BlendTree:
     m_DirectBlendParameter: movement
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: 9d2b247e08275094cbd8051d7e21ea0c,
+    m_Motion: {fileID: -203655887218126122, guid: 25380ed4c70ab334f9448539a9ea74df,
       type: 3}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
@@ -92,7 +92,7 @@ BlendTree:
   m_Name: Blend Tree
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: cdc90daa66c302e4087a6a7450631c35,
+    m_Motion: {fileID: -203655887218126122, guid: b9b38e4b563981447b430dfde1ac7330,
       type: 3}
     m_Threshold: 0
     m_Position: {x: 0, y: 0}
@@ -101,7 +101,7 @@ BlendTree:
     m_DirectBlendParameter: movement
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: 9d2b247e08275094cbd8051d7e21ea0c,
+    m_Motion: {fileID: -203655887218126122, guid: d62ce8bdeac916d49925e30003cbdcf2,
       type: 3}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
@@ -131,7 +131,7 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: isAggressive
+  - m_Name: isAggresive
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
