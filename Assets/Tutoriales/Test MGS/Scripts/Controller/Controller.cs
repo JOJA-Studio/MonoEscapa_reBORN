@@ -2,25 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.XR;
+using static Interfaces;
 
 
 namespace SA
 { 
-    public class Controller : MonoBehaviour
+    public class Controller : MonoBehaviour, IShootable
     {
-        new Rigidbody rigidbody;
+        public new Rigidbody rigidbody;
         public float moveSpeed = .4f;
         public float proneSpeed = .4f;
         public float wallSpeed = .4f;
         public float rotateSpeed = .2f;
+        public float fpsRotateSpeed = .2f;
         public float wallCheckDis = .2f;
+        public float aimSpeed = 1;
         [HideInInspector]
         public Transform mtransform;
         Animator animator;
+        [HideInInspector]
+        public InventoryManager inventoryManager;
 
+        public bool isAiming;
         public bool isWall;
+        public bool isFreelook;
         public bool isCrouch;
         public bool isProne;
+        public float wallCamXPos = 1;
+        public Transform wallCamParent;
+        public Vector3 startWallCamPosition;
 
 
         private void Start()
@@ -28,22 +39,30 @@ namespace SA
             mtransform = this.transform;
             rigidbody = GetComponent<Rigidbody>();
             animator = GetComponentInChildren<Animator>();
+            inventoryManager = GetComponent<InventoryManager>();
+            startWallCamPosition = wallCamParent.localPosition;
         }
 
         public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layermask)
         {
-            //float dot = Vector3.Dot(moveDirection, Vector3.forward);
+            float dot = Vector3.Dot(moveDirection, Vector3.forward);
+            Vector3 wallCamTargetPosition = startWallCamPosition;
             //Debug.Log(dot);
             //moveDirection *= (dot < -0.8f) ? -1 : 1;
+            if (dot < 0)
+            {
+                moveDirection.x *= -1;
+            }
+            HandleRotation(normal, delta);
 
+            //moveDirection = mtransform.InverseTransformDirection(moveDirection);//mtransform.right * horizontal;
             Vector3 projectvel = Vector3.ProjectOnPlane(moveDirection, normal);
             Debug.DrawRay(mtransform.position, projectvel,Color.blue);
-            Vector3 relativeDir = mtransform.InverseTransformDirection(projectvel);
 
+            Vector3 relativeDir = mtransform.InverseTransformDirection(projectvel);
 
             Vector3 origin = mtransform.position;
             origin.y += 1;
-
             if ((Mathf.Abs(relativeDir.x) > 0.01f))
             {
                 if (relativeDir.x > 0)
@@ -60,6 +79,7 @@ namespace SA
                 else
                 {
                     projectvel = Vector3.zero;
+                    wallCamTargetPosition.x = wallCamXPos * ((relativeDir.x < 0)? -1:1);
                     relativeDir.x = 0;
                 }
             }
@@ -70,10 +90,10 @@ namespace SA
             }
 
             rigidbody.velocity = projectvel * wallSpeed; 
-            HandleRotation(-normal, delta);
+
 
             float m = 0;
-            Debug.Log(relativeDir);
+            //Debug.Log(relativeDir);
             m = relativeDir.x;
             if (m < 0.1f && m > 0.1f)
             {
@@ -83,13 +103,23 @@ namespace SA
             {
                 m = (m < 0) ? -1 : 1;
             }
-            animator.SetFloat("movement", m, 0.1f, delta);
+            //animator.SetFloat("movement", m, 0.1f, delta);
+
+            wallCamParent.localPosition = Vector3.Lerp(wallCamParent.localPosition, wallCamTargetPosition, delta / 0.2f);
         }
 
         public void Move(Vector3 moveDirection, float delta)
         {
+            if (animator.GetBool("canRotate"))
+            {
+                moveDirection = Vector3.zero;
+            }
+             
+            float speed = moveSpeed;
+            if(isAiming)
+                speed = aimSpeed;
 
-            rigidbody.velocity = moveDirection * moveSpeed;            
+            rigidbody.velocity = moveDirection * speed;            
         }
 
         public void CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
@@ -104,7 +134,7 @@ namespace SA
 
                 if (moveAmount > 0)
                 { 
-                    animator.SetBool("isProne", true);
+                    isProne = true;
                     HandleRotation(moveDirection, delta);
                     animator.SetBool("canRotate", false);
                 }
@@ -113,10 +143,11 @@ namespace SA
             {
                 if (moveAmount > 0)
                 { 
-                    animator.SetBool("isProne", false);
+                    isProne = false;
 
                     if (animator.GetBool("canRotate"))
                     { 
+                        rigidbody.velocity = Vector3.zero;
                          HandleRotation(moveDirection, delta);                    
                     }
                 }
@@ -131,10 +162,21 @@ namespace SA
             mtransform.rotation = Quaternion.Slerp(mtransform.rotation, lookRotation, delta / rotateSpeed);
         }
 
+        public void FPSRotate(float horizontal, float delta)
+        {
+            Vector3 targetEuler = mtransform.eulerAngles;
+            targetEuler.y += horizontal * delta / fpsRotateSpeed;
+
+            mtransform.eulerAngles = targetEuler;
+        }
+
         public void HandleAnimationStates()
         {
             animator.SetBool("isCrouch", isCrouch);
             animator.SetBool("isWall", isWall);
+            animator.SetBool("isAiming", isAiming);
+            animator.SetBool("isProne", isProne);
+            inventoryManager.currentweapon.model.SetActive(isAiming);
         }
 
         public void HandleMovementAnimations(float moveAmount, float delta)
@@ -150,6 +192,31 @@ namespace SA
            
 
             animator.SetFloat("movement", m, 0.1f, delta);
+        }
+
+        float lastShot;
+
+        public void HandleShooting()
+        {
+            if (Time.realtimeSinceStartup - lastShot > inventoryManager.currentweapon.fireRate)
+            { 
+                lastShot = Time.realtimeSinceStartup;
+                inventoryManager.currentweapon.muzzle.Play();
+
+                GameReferences.RaycastShoot(mtransform, inventoryManager.currentweapon.weaponSpread);
+            }
+        }
+
+        public void OnHit()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public string hitFx = "blood";
+
+        public string GetHitFx()
+        {
+            return hitFx;
         }
     }
 }
