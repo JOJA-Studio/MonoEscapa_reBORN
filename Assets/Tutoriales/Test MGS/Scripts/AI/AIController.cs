@@ -55,6 +55,12 @@ public class AIController : MonoBehaviour, IShootable
     {
         float delta = Time.deltaTime;
 
+        if (animator.GetBool("isInteracting"))
+        {
+            agent.isStopped = true;
+            return;
+        }
+
         if (!isAgressive)
         {
             //Debug.Log(delta);
@@ -212,6 +218,9 @@ public class AIController : MonoBehaviour, IShootable
         if (timesShot > magazineBullets)
         { 
             timesShot = 0;
+            animator.CrossFade("Reload", 0.2f);
+            animator.CrossFade("Reload_Body", 0.2f);
+            //animator.SetBool("isInteracting", true);
         }
     }
 

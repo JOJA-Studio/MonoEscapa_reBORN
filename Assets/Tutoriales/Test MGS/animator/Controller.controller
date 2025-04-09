@@ -74,6 +74,7 @@ MonoBehaviour:
   status: 1
   resetOnExit: 1
   delay: 0.2
+  isPlayer: 1
 --- !u!1102 &-6170181362927716413
 AnimatorState:
   serializedVersion: 6
