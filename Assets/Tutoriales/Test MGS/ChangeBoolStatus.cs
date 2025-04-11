@@ -20,18 +20,30 @@ public class ChangeBoolStatus : StateMachineBehaviour
         { 
             if (controller == null)
             controller = animator.GetComponentInParent<Controller>();
-        
-        
-            controller.StartCoroutine(DeleyedOpen(delay, animator, status));
+
+            if (delay > 0)
+            {
+                controller.StartCoroutine(DeleyedOpen(delay, animator, status));
+            }
+            else
+            {
+                animator.SetBool(boolName, status);
+            }
         }
         else
         {
             if (aiController == null)
                 aiController = animator.GetComponentInParent<AIController>();
 
-
-            Debug.Log("Controller: " + (controller != null ? "No nulo" : "Nulo") + " game object " + animator.gameObject.name);
-            aiController.StartCoroutine(DeleyedOpen(delay, animator, status));
+            if (delay > 0)
+            {
+                Debug.Log("Controller: " + (controller != null ? "No nulo" : "Nulo") + " game object " + animator.gameObject.name);
+                aiController.StartCoroutine(DeleyedOpen(delay, animator, status));
+            }
+            else
+            {
+                animator.SetBool(boolName, status);
+            }
         }
     }
 

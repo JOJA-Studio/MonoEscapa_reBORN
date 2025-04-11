@@ -21,7 +21,6 @@ public class AIController : MonoBehaviour, IShootable
     public bool isAgressive;
     public bool isCaution;
     public float cautionTimerNormal = 0.7f;
-    public float cautionTimerAggerssive = 0.4f;
     float cautionTimer;
 
     float waitTimer;
@@ -34,11 +33,13 @@ public class AIController : MonoBehaviour, IShootable
     
     public float attackDistance = 5;
     Vector3 lastKnownPosition;
+    Vector3 lastKnownDirection;
 
     Controller currentTarget;
     LayerMask controllerLayer;
 
     public int magazineBullets = 40;
+    int bulletsToFire;
     int timesShot;
 
     private void Start()
@@ -58,6 +59,11 @@ public class AIController : MonoBehaviour, IShootable
         if (animator.GetBool("isInteracting"))
         {
             agent.isStopped = true;
+            if (animator.GetBool("canRotate"))
+            {
+                HandleLookAtTarge(delta);
+            }
+
             return;
         }
 
@@ -137,25 +143,38 @@ public class AIController : MonoBehaviour, IShootable
 
     public float fireRate = .1f;
     float currentFire;
+    bool initRange;
 
     void HandleAggresiveLogic(float delta)
     {
         if (currentTarget != null)
         {
             if (!RaycastToTarget(currentTarget))
-            { 
+            {
+                lastKnownDirection = (currentTarget.mtransform.position - lastKnownPosition).normalized;
                 currentTarget = null;
             }
         }
 
+        bool inRange = false;
+
         float dis = Vector3.Distance(lastKnownPosition, mTransform.position);
         agent.SetDestination(lastKnownPosition);
-
-
+        
+        #region Handle Raycast to target
         if (currentTarget != null)
         {
             if (dis < attackDistance)
             {
+                inRange = true;
+
+                if (!initRange)
+                {
+                    AssignRandomBulletsToFire();
+                    PlayCautionState(cautionTimerNormal, delta, false);
+                    currentFire = fireRate;
+                    initRange = true;
+                }
                 agent.isStopped = true;
 
 
@@ -165,6 +184,11 @@ public class AIController : MonoBehaviour, IShootable
                 {
                     currentFire = fireRate;
                     HandleShooting();
+                    if (bulletsToFire <= 0)
+                    {
+                        AssignRandomBulletsToFire();
+                        PlayCautionState(cautionTimerNormal, delta, false);
+                    }
                 }
                 else
                 {
@@ -173,36 +197,74 @@ public class AIController : MonoBehaviour, IShootable
             }
             else
             {
+                initRange = false;
                 agent.updateRotation = true;
                 agent.isStopped = false;
                 HandleDetection();
+
+                if (agent.remainingDistance < agent.stoppingDistance)
+                {
+                    HandleRotation(lastKnownPosition, delta);
+                }
             }
         }
         else
         {
+            initRange = false;
             agent.updateRotation = true;
             agent.isStopped = false;
             HandleDetection();
         }
+        #endregion
 
-        if (agent.desiredVelocity.magnitude > 0)
-        {
-            animator.SetFloat("movement", 1, .1f, delta);
+        #region Handle animations
+        if (currentTarget != null)
+        { 
+            if (!inRange)
+            {
+                animator.SetFloat("movement", 1, .1f, delta);
+            }
+            else
+            {
+                animator.SetFloat("movement", 0);
+            }
         }
         else
         {
-            animator.SetFloat("movement", 0, .1f, delta);
+            if (agent.desiredVelocity.magnitude > 0)
+            {
+                animator.SetFloat("movement", 1, .1f, delta);
+            }
+            else
+            {
+                animator.SetFloat("movement", 0, .1f, delta);
+            }
         }
-
-
+        #endregion
     }
 
     public ParticleSystem muzzleFire;
     public float weaponSpread = .3f;
 
+    void AssignRandomBulletsToFire()
+    {
+        bulletsToFire = Random.Range(5, 20);
+        int bl = magazineBullets - timesShot;
+
+        if (bulletsToFire > bl)
+        {
+            bulletsToFire = bl;
+        }
+    }
+
     void HandleLookAtTarge(float delta)
     {
         Vector3 dir = currentTarget.transform.position - mTransform.position;
+        HandleRotation(dir, delta);
+    }
+
+    void HandleRotation(Vector3 dir, float delta)
+    {
         dir.y = 0;
         Quaternion targetRot = Quaternion.LookRotation(dir);
         mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
@@ -212,6 +274,7 @@ public class AIController : MonoBehaviour, IShootable
     void HandleShooting()
     {
         timesShot++;
+        bulletsToFire--;
         muzzleFire.Play();
         GameReferences.RaycastShoot(mTransform, weaponSpread);
 
@@ -222,6 +285,17 @@ public class AIController : MonoBehaviour, IShootable
             animator.CrossFade("Reload_Body", 0.2f);
             //animator.SetBool("isInteracting", true);
         }
+
+
+    }
+
+    void PlayCautionState(float timer, float delta, bool crossfadeToState = true)
+    {
+        isCaution = true;
+        cautionTimer = timer;
+        if(crossfadeToState)
+            animator.CrossFade("caution", 0.2f);
+        animator.SetFloat("movement", 0, 0.1f, delta);
     }
 
     bool RaycastToTarget(Controller c)
