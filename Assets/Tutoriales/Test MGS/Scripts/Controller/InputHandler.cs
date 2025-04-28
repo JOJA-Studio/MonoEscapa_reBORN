@@ -17,10 +17,13 @@ namespace SA
         public float wallDetectDistance = .5f;
         public float wallDetectDistanceOnWall = 1.2f;
         public float wallAngleTreshold = 35;
+
         float horizontal;
         float vertical;
         float moveAmount;
         bool freeLook;
+        bool grabInput;
+        float grabDeadTimer;
         LayerMask ignoreForWall;
         
 
@@ -48,10 +51,45 @@ namespace SA
 
         private void Update()
         {
+            float delta = Time.deltaTime;
+
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
             controller.isAiming = Input.GetMouseButton(1);
             freeLook = Input.GetKey(KeyCode.F);
+            bool rawGrabInputHold = Input.GetMouseButton(0);
+            bool rawGrabInputDown = Input.GetMouseButtonDown(0);
+            bool doubleGrab = false;
+
+            if (rawGrabInputHold)
+            {
+                grabInput = true;
+                if (grabDeadTimer < 1)
+                { 
+                    doubleGrab = true;
+                }
+                grabDeadTimer = 0;
+
+            }
+            else
+            {
+                grabDeadTimer += delta;
+                if (grabDeadTimer > 1)
+                { 
+                    grabInput = false;
+                }
+            }
+
+            controller.isInteracting = controller.animator.GetBool("isInteracting");
+            if (controller.isAiming)
+            {
+                grabInput = false;
+                freeLook = false;
+            }
+            if (grabInput)
+            { 
+                freeLook = false;
+            }
 
             if (freeLook)
             {
@@ -63,7 +101,7 @@ namespace SA
                     cameraManager.fpsCameraObject.SetActive(true);
                     //controller.meshRenderer.enabled = false;
                     controller.rigidbody.velocity = Vector3.zero;
-                    cameraManager.mainCamera.cullingMask = ~(1 << 12);
+                    cameraManager.mainCamera.cullingMask = ~(1 << 12 | 1 << 14);
                 }
 
             }
@@ -77,9 +115,16 @@ namespace SA
                     cameraManager.mainCamera.cullingMask = ~0;
                 }
             }
+            if (controller.isInteracting)
+            {
+                controller.rigidbody.velocity = Vector3.zero;
+            }
+
+            controller.HandlerGrab(grabInput, doubleGrab, rawGrabInputDown);
+
             
+
             moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
-            
             moveDirection = Vector3.forward * vertical;
             moveDirection += Vector3.right * horizontal;
             moveDirection.Normalize();
@@ -91,7 +136,6 @@ namespace SA
                     moveDirection = Vector3.zero;
             }
 
-            float delta = Time.deltaTime;
 
             if (controller.isFreelook)
             {
@@ -110,7 +154,7 @@ namespace SA
                         controller.HandleShooting();
                     }
 
-                    if (controller.inventoryManager.currentweapon.canMoveWithWeapon)
+                    if (controller.inventoryManager.currentWeapon.canMoveWithWeapon)
                     {
                         controller.Move(moveDirection, delta);
                         controller.HandleMovementAnimations(moveAmount, delta);
@@ -133,8 +177,23 @@ namespace SA
             controller.HandleAnimationStates();
         }
 
+
         void HandleMovement(Vector3 moveDirection, float delta)
         {
+
+            if (controller.isGrab)
+            {
+                controller.HandleGrabAnimation(moveAmount, delta);
+
+                if (moveAmount == 1)
+                {
+                    controller.GrabMove(moveDirection, delta);
+                    controller.HandleRotation(-moveDirection, delta);
+                }
+
+                controller.HandleEnemyPositionOnGrab();
+                return;
+            }
 
 
             Vector3 origin = controller.transform.position;

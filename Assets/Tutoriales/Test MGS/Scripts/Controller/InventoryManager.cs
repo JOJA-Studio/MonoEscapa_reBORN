@@ -1,18 +1,81 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
-    public Weapon currentweapon;
+    public Transform rightHand;
+
+    public WeaponItem currentWeapon {
+
+        get{
+            if (currentWeaponHook == null)
+                return null;
+
+            return currentWeaponHook.baseItem;
+        }
+    }
+    public WeaponHook currentWeaponHook;
+
+    public List<WeaponItem> allWeapons;
+    Dictionary<WeaponItem, WeaponHook> weaponsDict = new Dictionary<WeaponItem, WeaponHook>();
+
+    private void Start()
+    {
+        LoadWeapon(allWeapons[0]);
+    }
+
+    public void SwitchWeapon()
+    { 
+        int index = 0;
+        if (allWeapons.Contains(currentWeapon))
+        {
+            index = allWeapons.IndexOf(currentWeapon);
+        }
+
+        index++;
+        if (index > allWeapons.Count - 1)
+        {
+            index = 0;
+        }
+
+        LoadWeapon(allWeapons[index]);
+    }
+
+    public void LoadWeapon(WeaponItem weaponItem)
+    {
+        if (currentWeaponHook != null)
+        { 
+            currentWeaponHook.gameObject.SetActive(false);
+        }
+
+        if (weaponsDict.ContainsKey(weaponItem))
+        {
+            weaponsDict.TryGetValue(weaponItem, out currentWeaponHook);            
+        }
+        else
+        {
+            GameObject go = Instantiate(weaponItem.prefab);
+            go.transform.parent = rightHand;
+            go.transform.localPosition = Vector3.zero; 
+            go.transform.localRotation = Quaternion.identity;
+            go.transform.localScale = Vector3.one;
+            currentWeaponHook = go.GetComponent<WeaponHook>();
+            currentWeaponHook.Init(weaponItem);
+            weaponsDict.Add(weaponItem, currentWeaponHook);
+        }
+
+    }
 }
 
-[System.Serializable]
-public class Weapon
-{
-    public GameObject model;
-    public bool canMoveWithWeapon;
-    public float fireRate = .15f;
-    public ParticleSystem muzzle;
-    public float weaponSpread = .2f;
-}
+//[System.Serializable]
+//public class Weapon
+//{
+//    public GameObject model;
+//    public bool canMoveWithWeapon;
+//    public float fireRate = .15f;
+//    public ParticleSystem muzzle;
+//    public float weaponSpread = .2f;
+//    public bool hasPicked;
+//}

@@ -8,7 +8,7 @@ public class ChangeBoolStatus : StateMachineBehaviour
     public string boolName;
     public bool status;
     public bool resetOnExit;
-    public float delay = .1f;
+    public float delay = 0;
     Controller controller;
     AIController aiController;
     public bool isPlayer;

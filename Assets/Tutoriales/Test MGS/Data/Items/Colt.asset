@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcf9ac67342fd1349b4cf0612ba3d501, type: 3}
+  m_Name: Colt
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 938062909371163941, guid: a8cab038060c12342b2f72aa38ea6796, type: 3}
+  magazineAmmo: 12
+  damageValue: 20
+  fireRate: 0.25
+  weaponSpread: 0.2
+  canMoveWithWeapon: 0

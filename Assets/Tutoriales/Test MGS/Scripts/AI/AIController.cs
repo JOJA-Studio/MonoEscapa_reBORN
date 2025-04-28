@@ -11,13 +11,15 @@ public class AIController : MonoBehaviour, IShootable
 
     NavMeshAgent agent;
     new Rigidbody rigidbody;
-    Animator animator;
+    public Animator animator;
 
     public int index;
     public Waypoint[] waypoints;
     Waypoint currentWaypoint;
     Transform mTransform;
 
+    public bool isDead;
+    public bool isGrab;
     public bool isAgressive;
     public bool isCaution;
     public float cautionTimerNormal = 0.7f;
@@ -42,19 +44,30 @@ public class AIController : MonoBehaviour, IShootable
     int bulletsToFire;
     int timesShot;
 
+    public int timesStruggle;
+
+    InventoryManager inventoryManager;
+
     private void Start()
     {
         agent = GetComponentInChildren<NavMeshAgent>();
         rigidbody = GetComponentInChildren<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
+        inventoryManager = GetComponentInChildren<InventoryManager>();
         currentWaypoint = waypoints[index];
         mTransform = this.transform;
         animator.applyRootMotion = false;
-        controllerLayer = (1 << 11);
+        controllerLayer = (1 << 11 | 1 << 14);
     }
     private void Update()
     {
         float delta = Time.deltaTime;
+
+        if (isGrab)
+        { 
+           // agent.isStopped = true;
+            return;
+        }
 
         if (animator.GetBool("isInteracting"))
         {
@@ -86,6 +99,11 @@ public class AIController : MonoBehaviour, IShootable
                 }
                 else
                 {
+                    if (animator.GetBool("canRotate"))
+                    {
+                        HandleLookAtTarge(delta);
+                    }
+
                     HandleLookAtTarge(delta);
                     agent.isStopped = true;
                     cautionTimer -= delta;
@@ -260,12 +278,17 @@ public class AIController : MonoBehaviour, IShootable
     void HandleLookAtTarge(float delta)
     {
         Vector3 dir = currentTarget.transform.position - mTransform.position;
+       
+
         HandleRotation(dir, delta);
     }
 
     void HandleRotation(Vector3 dir, float delta)
     {
         dir.y = 0;
+        if (dir == Vector3.zero)
+            dir = mTransform.forward;
+        
         Quaternion targetRot = Quaternion.LookRotation(dir);
         mTransform.rotation = Quaternion.Slerp(mTransform.rotation, targetRot, delta / rotateSpeed);
         agent.updateRotation = false;
@@ -275,8 +298,9 @@ public class AIController : MonoBehaviour, IShootable
     {
         timesShot++;
         bulletsToFire--;
-        muzzleFire.Play();
-        GameReferences.RaycastShoot(mTransform, weaponSpread);
+        //muzzleFire.Play();
+        GameReferences.RaycastShoot(mTransform, inventoryManager.currentWeaponHook);
+        inventoryManager.currentWeaponHook.Shoot();
 
         if (timesShot > magazineBullets)
         { 
@@ -296,6 +320,8 @@ public class AIController : MonoBehaviour, IShootable
         if(crossfadeToState)
             animator.CrossFade("caution", 0.2f);
         animator.SetFloat("movement", 0, 0.1f, delta);
+        animator.SetBool("isCaution", true);
+
     }
 
     bool RaycastToTarget(Controller c)
@@ -374,6 +400,33 @@ public class AIController : MonoBehaviour, IShootable
     public string GetHitFx()
     {
         return hitFx;
+    }
+
+    public void StartGrab(Vector3 tp, Quaternion targetRotation)
+    {
+        agent.enabled = false;
+        mTransform.position = tp;
+        isGrab = true;
+        animator.Play("e_Grab_start");
+        mTransform.rotation = targetRotation;
+    }
+
+    public void KillByGrab()
+    { 
+        animator.Play("grab_death");
+        this.enabled = false;
+        isDead = true;
+    }
+
+    public void StopGrab(Controller target)
+    {
+        currentTarget = target;
+        lastKnownPosition = currentTarget.mtransform.position;
+        agent.enabled = true;
+        agent.updateRotation = false;
+        isGrab = false;
+        animator.Play("e_grab_cancel");
+        PlayCautionState(cautionTimerNormal, Time.deltaTime, false);
     }
 }
 

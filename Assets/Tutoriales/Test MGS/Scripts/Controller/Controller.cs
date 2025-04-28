@@ -12,6 +12,7 @@ namespace SA
     {
         public new Rigidbody rigidbody;
         public float moveSpeed = .4f;
+        public float grabSpeed = .4f;
         public float proneSpeed = .4f;
         public float wallSpeed = .4f;
         public float rotateSpeed = .2f;
@@ -20,14 +21,17 @@ namespace SA
         public float aimSpeed = 1;
         [HideInInspector]
         public Transform mtransform;
-        Animator animator;
+        public Animator animator;
         [HideInInspector]
         public InventoryManager inventoryManager;
 
         public bool isAiming;
+        public bool isInteracting;
         public bool isWall;
         public bool isFreelook;
         public bool isCrouch;
+        public bool isGrab;
+        AIController currentGrabbed;
         public bool isProne;
         public float wallCamXPos = 1;
         public Transform wallCamParent;
@@ -108,6 +112,12 @@ namespace SA
             wallCamParent.localPosition = Vector3.Lerp(wallCamParent.localPosition, wallCamTargetPosition, delta / 0.2f);
         }
 
+        public void GrabMove(Vector3 moveDirection, float delta)
+        {
+            rigidbody.velocity = moveDirection * grabSpeed;
+        }
+
+
         public void Move(Vector3 moveDirection, float delta)
         {
             if (animator.GetBool("canRotate"))
@@ -176,7 +186,8 @@ namespace SA
             animator.SetBool("isWall", isWall);
             animator.SetBool("isAiming", isAiming);
             animator.SetBool("isProne", isProne);
-            inventoryManager.currentweapon.model.SetActive(isAiming);
+            inventoryManager.currentWeaponHook.gameObject.SetActive(isAiming);
+            //inventoryManager.currentWeapon.model.SetActive(isAiming);
         }
 
         public void HandleMovementAnimations(float moveAmount, float delta)
@@ -198,15 +209,113 @@ namespace SA
 
         public void HandleShooting()
         {
-            if (Time.realtimeSinceStartup - lastShot > inventoryManager.currentweapon.fireRate)
+            if (Time.realtimeSinceStartup - lastShot > inventoryManager.currentWeapon.fireRate)
             { 
                 lastShot = Time.realtimeSinceStartup;
-                inventoryManager.currentweapon.muzzle.Play();
+                inventoryManager.currentWeaponHook.Shoot();
 
-                GameReferences.RaycastShoot(mtransform, inventoryManager.currentweapon.weaponSpread);
+                GameReferences.RaycastShoot(mtransform, inventoryManager.currentWeaponHook);
             }
         }
 
+        public float grabOffset;
+        public float grabDistance = 1;
+
+        public void HandlerGrab(bool isHolding, bool doubleGrab, bool isTrigger)
+        {
+            if (currentGrabbed != null)
+            {
+                if (doubleGrab && !isInteracting)
+                {
+                    Debug.Log("struggle");
+                    animator.Play("p_grab_struggle");
+                    currentGrabbed.animator.Play("e_grab_struggle");
+                    currentGrabbed.timesStruggle++;
+
+                    if (currentGrabbed.timesStruggle > 2)
+                    {
+                        isGrab = false;
+                        animator.Play("p_grab_finish");
+                        currentGrabbed.KillByGrab();
+                        currentGrabbed = null;
+                        isHolding = false;
+                        return;
+                    }
+                }
+            }
+
+            if (isHolding)
+            {
+                if (currentGrabbed == null && isTrigger)
+                {
+                    Vector3 origin = mtransform.position;
+                    origin.y += 1.5f;
+                    RaycastHit hit;
+                    Debug.DrawRay(origin, mtransform.forward * grabDistance, Color.blue, 1, false);
+                    rigidbody.velocity = Vector3.zero;
+
+                    if (Physics.SphereCast(origin, 0.25f, mtransform.forward, out hit, grabDistance))
+                    {
+                        AIController aIController = hit.transform.GetComponent<AIController>();
+                        if (aIController != null)
+                        {
+                            if (aIController.isDead == false)
+                            {
+                                Vector3 tp = mtransform.forward * grabOffset;
+                                tp += mtransform.position;
+                                aIController.StartGrab(tp, mtransform.rotation);
+                                animator.Play("p_Grab_start");
+                                animator.SetFloat("movement", 0);
+                                isGrab = true;
+                                currentGrabbed = aIController;
+                            }
+                        }
+                        else
+                        {
+                            animator.Play("p_Grab_empty");
+                        }
+                    }
+                    else
+                    {
+                        animator.Play("p_Grab_empty");
+                    }
+                }
+                else
+                {
+                }
+            }
+            else
+            {
+                if (currentGrabbed != null)
+                { 
+                    isGrab = false;
+                    animator.Play("p_grab_cancel");
+                    currentGrabbed.StopGrab(this);
+                    currentGrabbed = null;                
+                }
+            }
+
+        }
+
+        public void HandleEnemyPositionOnGrab()
+        {
+            Vector3 tp = mtransform.forward * grabOffset;
+            tp += mtransform.position;
+            currentGrabbed.transform.position = tp;
+            currentGrabbed.transform.rotation = mtransform.rotation;
+        }
+
+        public void HandleGrabAnimation(float moveAmount, float delta)
+        {
+            float m = moveAmount;
+            //if (moveAmount > 0)
+            //{
+            //    m = 1;
+            //}
+
+            animator.SetFloat("movement", m, 0.1f, delta);
+            currentGrabbed.animator.SetFloat("movement", m, 0.1f, delta);
+        }
         public void OnHit()
         {
             throw new System.NotImplementedException();
