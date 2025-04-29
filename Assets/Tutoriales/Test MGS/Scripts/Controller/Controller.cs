@@ -186,7 +186,11 @@ namespace SA
             animator.SetBool("isWall", isWall);
             animator.SetBool("isAiming", isAiming);
             animator.SetBool("isProne", isProne);
-            inventoryManager.currentWeaponHook.gameObject.SetActive(isAiming);
+
+            if (inventoryManager.currentWeaponHook != null)
+            { 
+                inventoryManager.currentWeaponHook.gameObject.SetActive(isAiming);        
+            }
             //inventoryManager.currentWeapon.model.SetActive(isAiming);
         }
 

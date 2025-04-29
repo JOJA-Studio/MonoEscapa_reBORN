@@ -23,11 +23,34 @@ public class InventoryManager : MonoBehaviour
 
     private void Start()
     {
-        LoadWeapon(allWeapons[0]);
+        if(allWeapons.Count > 0)
+            LoadWeapon(allWeapons[0]);
+    }
+
+    public void PickUpItem(Item item)
+    {
+        if (item is WeaponItem)
+        {
+            WeaponItem w = (WeaponItem)item;
+            if (allWeapons.Contains(w))
+            {
+
+            }
+            else
+            { 
+                allWeapons.Add(w);
+                LoadWeapon(w);
+            }
+        }
     }
 
     public void SwitchWeapon()
-    { 
+    {
+        if (allWeapons.Count <= 0)
+        { 
+            return;
+        }
+
         int index = 0;
         if (allWeapons.Contains(currentWeapon))
         {

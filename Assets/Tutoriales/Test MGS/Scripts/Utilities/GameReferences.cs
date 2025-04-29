@@ -5,6 +5,8 @@ using UnityEngine.UIElements;
 
 public static class GameReferences 
 {
+    public static LayerMask ignoreForShooting;
+
     static ObjectPooler _objectPooler;
     public static ObjectPooler objectPooler { 
         get{
@@ -30,7 +32,7 @@ public static class GameReferences
 
         Vector3 endPosition = origin + mTransform.forward * 100;
 
-        if (Physics.Raycast(origin, mTransform.forward, out hit, 100))
+        if (Physics.Raycast(origin, mTransform.forward, out hit, 100, ignoreForShooting))
         {
             IShootable shootable = hit.transform.GetComponentInParent<IShootable>();
             if (shootable != null)

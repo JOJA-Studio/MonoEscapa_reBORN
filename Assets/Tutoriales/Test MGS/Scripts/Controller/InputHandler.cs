@@ -38,7 +38,8 @@ namespace SA
             cameraManager.mainCameraObject.SetActive(true);
             cameraManager.fpsCameraObject.SetActive(false);
             cameraManager.mainCamera.cullingMask = ~0;
-            ignoreForWall = ~(1 << 11);
+            ignoreForWall = ~(1 << 11 | 1 << 14 | 1 << 15);
+            GameReferences.ignoreForShooting = ~(1 << 14 | 1 << 15);
         }
 
         private void FixedUpdate()
@@ -60,6 +61,7 @@ namespace SA
             bool rawGrabInputHold = Input.GetMouseButton(0);
             bool rawGrabInputDown = Input.GetMouseButtonDown(0);
             bool doubleGrab = false;
+            bool switchWeapon = Input.GetKeyDown(KeyCode.Q);
 
             if (rawGrabInputHold)
             {
@@ -78,6 +80,11 @@ namespace SA
                 { 
                     grabInput = false;
                 }
+            }
+
+            if (switchWeapon)
+            {
+                controller.inventoryManager.SwitchWeapon();
             }
 
             controller.isInteracting = controller.animator.GetBool("isInteracting");
@@ -143,6 +150,10 @@ namespace SA
             }
             else
             {
+                if (controller.inventoryManager.currentWeaponHook == null)
+                {
+                    controller.isAiming = false;
+                }
                 if (controller.isAiming)
                 {
                     //controller.isWall = false;
@@ -165,6 +176,7 @@ namespace SA
                         controller.rigidbody.velocity = Vector3.zero;
                     }
                 }
+                
                 else
                 {
                     if (movementOrder == ExecutionOrder.update)

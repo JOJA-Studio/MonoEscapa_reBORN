@@ -38,7 +38,9 @@ public class AIController : MonoBehaviour, IShootable
     Vector3 lastKnownDirection;
 
     Controller currentTarget;
+
     LayerMask controllerLayer;
+    LayerMask ignoreForDetection;
 
     public int magazineBullets = 40;
     int bulletsToFire;
@@ -57,7 +59,8 @@ public class AIController : MonoBehaviour, IShootable
         currentWaypoint = waypoints[index];
         mTransform = this.transform;
         animator.applyRootMotion = false;
-        controllerLayer = (1 << 11 | 1 << 14);
+        controllerLayer = (1 << 11);
+        ignoreForDetection = ~(1 << 14 | 1 << 15);
     }
     private void Update()
     {
@@ -336,7 +339,7 @@ public class AIController : MonoBehaviour, IShootable
             o.y += 1;
 
             Debug.DrawRay(o, dir * 50, Color.red);
-            if (Physics.Raycast(o, dir, out RaycastHit hit, 100))
+            if (Physics.Raycast(o, dir, out RaycastHit hit, 100, ignoreForDetection))
             {
                 Controller targetController = hit.transform.GetComponentInParent<Controller>();
                 if (targetController != null)
