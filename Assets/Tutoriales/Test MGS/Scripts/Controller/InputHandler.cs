@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 namespace SA
@@ -18,15 +19,18 @@ namespace SA
         public float wallDetectDistanceOnWall = 1.2f;
         public float wallAngleTreshold = 35;
 
-        float horizontal;
-        float vertical;
+        Vector2 moveInputDirection;
+        Vector2 lookInputDirection;
         float moveAmount;
         bool freeLook;
         bool grabInput;
+        bool rawGrabInputDown;
+        bool switchWeapon;
+        bool crouchInput;
         float grabDeadTimer;
         LayerMask ignoreForWall;
         
-
+        PlayerControls inputActions;
 
         public enum ExecutionOrder { 
             fixedUpdate, update, lateUpdate
@@ -34,12 +38,25 @@ namespace SA
 
         private void Start()
         {
+            inputActions = new PlayerControls();
+            inputActions.Player.Movement.performed += i => moveInputDirection = i.ReadValue<Vector2>();
+            inputActions.Player.FreeLookDirection.performed += i => moveInputDirection = i.ReadValue<Vector2>();
+            inputActions.Player.Crouch.started += i => crouchInput = true;
+            inputActions.Player.Grab.started += i => rawGrabInputDown = true;
+
+            inputActions.Enable();
+
             cameraManager.wallCameraObject.SetActive(false);
             cameraManager.mainCameraObject.SetActive(true);
             cameraManager.fpsCameraObject.SetActive(false);
             cameraManager.mainCamera.cullingMask = ~0;
             ignoreForWall = ~(1 << 11 | 1 << 14 | 1 << 15);
             GameReferences.ignoreForShooting = ~(1 << 14 | 1 << 15);
+        }
+
+        private void OnDisable()
+        {
+            inputActions.Disable(); 
         }
 
         private void FixedUpdate()
@@ -50,18 +67,19 @@ namespace SA
             }  
         }
 
+        bool IsPressed(UnityEngine.InputSystem.InputActionPhase phase)
+        {
+            return phase == UnityEngine.InputSystem.InputActionPhase.Started;
+        }
+
         private void Update()
         {
             float delta = Time.deltaTime;
 
-            horizontal = Input.GetAxis("Horizontal");
-            vertical = Input.GetAxis("Vertical");
-            controller.isAiming = Input.GetMouseButton(1);
-            freeLook = Input.GetKey(KeyCode.F);
-            bool rawGrabInputHold = Input.GetMouseButton(0);
-            bool rawGrabInputDown = Input.GetMouseButtonDown(0);
+            controller.isAiming = IsPressed(inputActions.Player.Aim.phase);
+            freeLook = IsPressed(inputActions.Player.Freelook.phase);
+            bool rawGrabInputHold = IsPressed(inputActions.Player.Grab.phase);
             bool doubleGrab = false;
-            bool switchWeapon = Input.GetKeyDown(KeyCode.Q);
 
             if (rawGrabInputHold)
             {
@@ -131,12 +149,12 @@ namespace SA
 
             
 
-            moveAmount = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
-            moveDirection = Vector3.forward * vertical;
-            moveDirection += Vector3.right * horizontal;
+            moveAmount = Mathf.Clamp01(Mathf.Abs(moveInputDirection.x) + Mathf.Abs(moveInputDirection.y));
+            moveDirection = Vector3.forward * moveInputDirection.y;
+            moveDirection += Vector3.right * moveInputDirection.x;
             moveDirection.Normalize();
 
-            if (Input.GetKeyDown(KeyCode.C))
+            if (crouchInput)
             {
                 controller.isCrouch = !controller.isCrouch;
                 if (!controller.isWall)
@@ -146,7 +164,7 @@ namespace SA
 
             if (controller.isFreelook)
             {
-                controller.FPSRotate(horizontal, delta);
+                controller.FPSRotate(moveInputDirection.x, delta);
             }
             else
             {
@@ -160,7 +178,7 @@ namespace SA
                     controller.isCrouch = false;
                     controller.HandleRotation(moveDirection, delta);
 
-                    if (Input.GetMouseButton(0))
+                    if (IsPressed(inputActions.Player.Shoot.phase))
                     {
                         controller.HandleShooting();
                     }
@@ -189,6 +207,16 @@ namespace SA
             controller.HandleAnimationStates();
         }
 
+        private void LateUpdate()
+        {
+            ResetInput();
+        }
+
+        void ResetInput()
+        { 
+            rawGrabInputDown = false;
+            crouchInput = false;
+        }
 
         void HandleMovement(Vector3 moveDirection, float delta)
         {
