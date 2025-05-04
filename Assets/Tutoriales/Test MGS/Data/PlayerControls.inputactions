@@ -67,6 +67,24 @@
                     "processors": "StickDeadzone",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Left Bumper",
+                    "type": "Button",
+                    "id": "b74ecb77-a098-4d97-8efe-58c9477799d9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Right Bumper",
+                    "type": "Button",
+                    "id": "01a497fc-b56a-4b80-9e71-8b02e45fbabb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -311,6 +329,50 @@
                     "action": "FreeLookDirection",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "37dd8adb-6d67-4a5e-a9df-0fbe8332f185",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Left Bumper",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "67cfff37-cedb-43a0-81c3-0db8cd05cfa6",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Left Bumper",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d8a9e6f1-29eb-42a9-80ea-48b8aca035ed",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right Bumper",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e01dad1d-61d6-410e-a7b2-724e1f58a4fa",
+                    "path": "<Keyboard>/t",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Right Bumper",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

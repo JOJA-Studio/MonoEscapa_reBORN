@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 public static class GameReferences 
 {
     public static LayerMask ignoreForShooting;
+    public static LayerMask controllersLayer;
 
     static ObjectPooler _objectPooler;
     public static ObjectPooler objectPooler { 

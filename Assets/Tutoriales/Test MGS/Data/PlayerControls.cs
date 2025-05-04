@@ -89,6 +89,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": ""StickDeadzone"",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Left Bumper"",
+                    ""type"": ""Button"",
+                    ""id"": ""b74ecb77-a098-4d97-8efe-58c9477799d9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Right Bumper"",
+                    ""type"": ""Button"",
+                    ""id"": ""01a497fc-b56a-4b80-9e71-8b02e45fbabb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -333,6 +351,50 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""FreeLookDirection"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""37dd8adb-6d67-4a5e-a9df-0fbe8332f185"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Left Bumper"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""67cfff37-cedb-43a0-81c3-0db8cd05cfa6"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Left Bumper"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d8a9e6f1-29eb-42a9-80ea-48b8aca035ed"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Right Bumper"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e01dad1d-61d6-410e-a7b2-724e1f58a4fa"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Right Bumper"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -348,6 +410,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Shoot = m_Player.FindAction("Shoot", throwIfNotFound: true);
         m_Player_Freelook = m_Player.FindAction("Freelook", throwIfNotFound: true);
         m_Player_FreeLookDirection = m_Player.FindAction("FreeLookDirection", throwIfNotFound: true);
+        m_Player_LeftBumper = m_Player.FindAction("Left Bumper", throwIfNotFound: true);
+        m_Player_RightBumper = m_Player.FindAction("Right Bumper", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -421,6 +485,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Shoot;
     private readonly InputAction m_Player_Freelook;
     private readonly InputAction m_Player_FreeLookDirection;
+    private readonly InputAction m_Player_LeftBumper;
+    private readonly InputAction m_Player_RightBumper;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
@@ -432,6 +498,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @Shoot => m_Wrapper.m_Player_Shoot;
         public InputAction @Freelook => m_Wrapper.m_Player_Freelook;
         public InputAction @FreeLookDirection => m_Wrapper.m_Player_FreeLookDirection;
+        public InputAction @LeftBumper => m_Wrapper.m_Player_LeftBumper;
+        public InputAction @RightBumper => m_Wrapper.m_Player_RightBumper;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -462,6 +530,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @FreeLookDirection.started += instance.OnFreeLookDirection;
             @FreeLookDirection.performed += instance.OnFreeLookDirection;
             @FreeLookDirection.canceled += instance.OnFreeLookDirection;
+            @LeftBumper.started += instance.OnLeftBumper;
+            @LeftBumper.performed += instance.OnLeftBumper;
+            @LeftBumper.canceled += instance.OnLeftBumper;
+            @RightBumper.started += instance.OnRightBumper;
+            @RightBumper.performed += instance.OnRightBumper;
+            @RightBumper.canceled += instance.OnRightBumper;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -487,6 +561,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @FreeLookDirection.started -= instance.OnFreeLookDirection;
             @FreeLookDirection.performed -= instance.OnFreeLookDirection;
             @FreeLookDirection.canceled -= instance.OnFreeLookDirection;
+            @LeftBumper.started -= instance.OnLeftBumper;
+            @LeftBumper.performed -= instance.OnLeftBumper;
+            @LeftBumper.canceled -= instance.OnLeftBumper;
+            @RightBumper.started -= instance.OnRightBumper;
+            @RightBumper.performed -= instance.OnRightBumper;
+            @RightBumper.canceled -= instance.OnRightBumper;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -513,5 +593,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnShoot(InputAction.CallbackContext context);
         void OnFreelook(InputAction.CallbackContext context);
         void OnFreeLookDirection(InputAction.CallbackContext context);
+        void OnLeftBumper(InputAction.CallbackContext context);
+        void OnRightBumper(InputAction.CallbackContext context);
     }
 }

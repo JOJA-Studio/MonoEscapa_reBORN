@@ -8,7 +8,7 @@ using static Interfaces;
 
 namespace SA
 { 
-    public class Controller : MonoBehaviour, IShootable
+    public class Controller : MonoBehaviour, IShootable, IPointOfInterest
     {
         public new Rigidbody rigidbody;
         public float moveSpeed = .4f;
@@ -25,6 +25,7 @@ namespace SA
         [HideInInspector]
         public InventoryManager inventoryManager;
 
+        public bool isFPS;
         public bool isAiming;
         public bool isInteracting;
         public bool isWall;
@@ -36,15 +37,33 @@ namespace SA
         public float wallCamXPos = 1;
         public Transform wallCamParent;
         public Vector3 startWallCamPosition;
+        CapsuleCollider controllerCollider;
 
-
+        public PoseStats standing;
+        public PoseStats crouching;
+        public float getWallDetectOrigin
+        {
+            get {
+                if (isCrouch)
+                {
+                    return crouching.wallDetectHeight;
+                }
+                else
+                { 
+                    return standing.wallDetectHeight;
+                }
+            }
+        }
         private void Start()
         {
             mtransform = this.transform;
             rigidbody = GetComponent<Rigidbody>();
             animator = GetComponentInChildren<Animator>();
+            controllerCollider = GetComponent<CapsuleCollider>();
             inventoryManager = GetComponent<InventoryManager>();
             startWallCamPosition = wallCamParent.localPosition;
+
+            UpdatePoseStats(standing);
         }
 
         public void Wallmovement(Vector3 moveDirection, Vector3 normal, float delta, LayerMask layermask)
@@ -132,6 +151,11 @@ namespace SA
             rigidbody.velocity = moveDirection * speed;            
         }
 
+        public void MoveProne(Vector3 moveDirection, float delta)
+        {
+            rigidbody.velocity = moveDirection * proneSpeed;
+        }
+
         public void CrouchMovement(Vector3 moveDirection, float delta, float moveAmount)
         {
             float dot = Vector3.Dot(moveDirection, mtransform.forward);
@@ -139,7 +163,8 @@ namespace SA
             if (dot > 0)
             {
                 Debug.DrawRay(mtransform.position, moveDirection);
-                rigidbody.velocity = moveDirection * proneSpeed;
+
+                MoveProne(moveDirection, delta);
 
 
                 if (moveAmount > 0)
@@ -176,7 +201,6 @@ namespace SA
         {
             Vector3 targetEuler = mtransform.eulerAngles;
             targetEuler.y += horizontal * delta / fpsRotateSpeed;
-
             mtransform.eulerAngles = targetEuler;
         }
 
@@ -331,5 +355,31 @@ namespace SA
         {
             return hitFx;
         }
+
+        public void UpdatePoseStats(PoseStats p)
+        { 
+            controllerCollider.height = p.colliderHeight;
+            Vector3 centerPosition = controllerCollider.center;
+            centerPosition.y = p.colliderPosY;
+            controllerCollider.center = centerPosition; 
+        }
+
+        public bool OnDetect(AIController aIController)
+        {
+            aIController.OnDetectPlayer(this);
+            return true;
+        }
+
+        public Transform GetTransform() 
+        { 
+            return mtransform; 
+        }
+    }
+
+    [System.Serializable]
+    public class PoseStats {
+        public float colliderHeight = 2;
+        public float colliderPosY = 1;
+        public float wallDetectHeight;
     }
 }

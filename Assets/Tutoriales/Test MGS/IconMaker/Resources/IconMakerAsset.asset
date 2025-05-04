@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1931ac3688adee4590e9bd94de5314d, type: 3}
+  m_Name: IconMakerAsset
+  m_EditorClassIdentifier: 
+  iconMakerGameObject: {fileID: 6655804794626907608, guid: ec6deded5bd1d534fa5357c6973895ee,
+    type: 3}
+  spriteMeshType: 0
+  renderLayer:
+    serializedVersion: 2
+    m_Bits: 67108864
+  renderTexture: {fileID: 8400000, guid: b996a13d82b48074e9259d5b9a5c7e85, type: 2}

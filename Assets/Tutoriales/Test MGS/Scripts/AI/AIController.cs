@@ -1,12 +1,14 @@
 using SA;
 using System.Collections;
 using System.Collections.Generic;
+//using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UIElements;
 using static Interfaces;
+using TMPro;
 
-public class AIController : MonoBehaviour, IShootable
+public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 {
 
     NavMeshAgent agent;
@@ -19,6 +21,7 @@ public class AIController : MonoBehaviour, IShootable
     Transform mTransform;
 
     public bool isDead;
+    public bool isSpottedDead;
     public bool isGrab;
     public bool isAgressive;
     public bool isCaution;
@@ -49,6 +52,9 @@ public class AIController : MonoBehaviour, IShootable
     public int timesStruggle;
 
     InventoryManager inventoryManager;
+
+    public TextMeshPro emotionText;
+    public GameObject emotionObj;
 
     private void Start()
     {
@@ -120,7 +126,6 @@ public class AIController : MonoBehaviour, IShootable
 
         }
     }
-
     void HandleNormalLogic(float delta)
     {
         currentWaypoint = waypoints[index];
@@ -173,6 +178,10 @@ public class AIController : MonoBehaviour, IShootable
             if (!RaycastToTarget(currentTarget))
             {
                 lastKnownDirection = (currentTarget.mtransform.position - lastKnownPosition).normalized;
+                hasTargetRotation = true;
+                scanTime = Random.Range(minScanTime, maxScanTime);
+                aIPhase = AIPhase.scanRan;
+
                 currentTarget = null;
             }
         }
@@ -223,9 +232,43 @@ public class AIController : MonoBehaviour, IShootable
                 agent.isStopped = false;
                 HandleDetection();
 
-                if (agent.remainingDistance < agent.stoppingDistance)
+                if (agent.remainingDistance < agent.stoppingDistance || agent.pathStatus == NavMeshPathStatus.PathInvalid || agent.pathStatus == NavMeshPathStatus.PathPartial)
                 {
-                    HandleRotation(lastKnownPosition, delta);
+                    if (hasTargetRotation)
+                    {
+                        aIPhase = AIPhase.scanRan;
+                        HandleRotation(lastKnownPosition, delta);
+
+                        scanTime -= delta;
+                        if (scanTime < 0)
+                        {
+                            hasTargetRotation = false;
+
+                            int ran = Random.Range(0, 100);
+                            if (ran > 50)
+                            {
+                                Debug.Log("switch to search");
+                                aIPhase = AIPhase.searchRan;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        switch (aIPhase)
+                        { 
+                            case AIPhase.scanRan:
+                                FindRandomLookDirection();
+
+                                break;
+                            case AIPhase.searchRan:
+                                SearchRandomPosition();
+                                FindRandomLookDirection();
+
+                                break;
+                            case AIPhase.searchPOI:
+                                break;
+                        }
+                    }
                 }
             }
         }
@@ -264,8 +307,39 @@ public class AIController : MonoBehaviour, IShootable
         #endregion
     }
 
+    void FindRandomLookDirection()
+    {
+        Vector2 r = Random.insideUnitCircle;
+        lastKnownDirection.x = r.x;
+        lastKnownDirection.y = r.y;
+        //Debug.Log(r);
+        scanTime = Random.Range(minScanTime, maxScanTime);
+        hasTargetRotation = true;
+    }
+
+    void SearchRandomPosition()
+    { 
+        Vector3 r = Random.insideUnitSphere * fovRadius;
+
+        if (NavMesh.SamplePosition(mTransform.position + r, out NavMeshHit hit, 5, NavMesh.AllAreas))
+        { 
+            lastKnownPosition = hit.position;
+        }
+    }
+
     public ParticleSystem muzzleFire;
     public float weaponSpread = .3f;
+
+    public enum AIPhase { 
+        scanRan, searchRan, searchPOI
+    }
+
+    public AIPhase aIPhase;
+    public float scanTime;
+    public float minScanTime = 1;
+    public float maxScanTime = 3;
+    public bool hasTargetRotation;
+    float lastCautionPlayed;
 
     void AssignRandomBulletsToFire()
     {
@@ -280,7 +354,8 @@ public class AIController : MonoBehaviour, IShootable
 
     void HandleLookAtTarge(float delta)
     {
-        Vector3 dir = currentTarget.transform.position - mTransform.position;
+        //Vector3 dir = currentTarget.transform.position - mTransform.position;
+        Vector3 dir = lastKnownPosition - mTransform.position;
        
 
         HandleRotation(dir, delta);
@@ -327,9 +402,9 @@ public class AIController : MonoBehaviour, IShootable
 
     }
 
-    bool RaycastToTarget(Controller c)
+    bool RaycastToTarget(IPointOfInterest poi)
     {
-        Vector3 dir = c.mtransform.position - mTransform.position;
+        Vector3 dir = poi.GetTransform().position - mTransform.position;
         dir.Normalize();
         float angle = Vector3.Angle(mTransform.forward, dir);
 
@@ -341,28 +416,39 @@ public class AIController : MonoBehaviour, IShootable
             Debug.DrawRay(o, dir * 50, Color.red);
             if (Physics.Raycast(o, dir, out RaycastHit hit, 100, ignoreForDetection))
             {
-                Controller targetController = hit.transform.GetComponentInParent<Controller>();
-                if (targetController != null)
+                IPointOfInterest pointOfInterest = hit.transform.GetComponentInParent<IPointOfInterest>();
+
+                if (pointOfInterest != null)
                 {
-                    if (!isAgressive || currentTarget == null)
-                    {
-                        cautionTimer = cautionTimerNormal;
-
-                        isCaution = true;
-                        isAgressive = true;
-                        //animator.SetBool("isCaution", true);
-                       // animator.CrossFade("caution", 0.2f);
-                    }
-
-                    currentTarget = targetController;
-                    animator.SetBool("isAggressive", true);
-                    lastKnownPosition = currentTarget.transform.position;
-                    return true;
+                    return pointOfInterest.OnDetect(this);
                 }
                 else
                 {
                     return false;
                 }
+
+                //Controller targetController = hit.transform.GetComponentInParent<Controller>();
+                //if (targetController != null)
+                //{
+                //    if (!isAgressive || currentTarget == null)
+                //    {
+                //        cautionTimer = cautionTimerNormal;
+                //        isCaution = true;
+                //        isAgressive = true;
+                //        //animator.SetBool("isCaution", true);
+                //       // animator.CrossFade("caution", 0.2f);
+                //    }
+
+                //    currentTarget = targetController;
+                //    animator.SetBool("isAggressive", true);
+                //    lastKnownPosition = currentTarget.transform.position;
+                //    //aIPhase = AIPhase.scanRan;
+                //    return true;
+                //}
+                //else
+                //{
+                //    return false;
+                //}
             }
             else
             {
@@ -375,18 +461,66 @@ public class AIController : MonoBehaviour, IShootable
         }
     }
 
+    public void OnDetectPlayer(Controller targetPlayer)
+    {
+
+        SetToCautiousState();
+        currentTarget = targetPlayer;
+
+        animator.SetBool("isAggressive", true);
+        lastKnownPosition = currentTarget.transform.position;
+        //aIPhase = AIPhase.scanRan;
+    }
+
+    public void SetToCautiousState()
+    {
+        if (!isAgressive)
+        {
+            emotionText.text = "?!";
+            emotionObj.SetActive(true);
+
+            cautionTimer = cautionTimerNormal;
+            isCaution = true;
+            isAgressive = true;
+            //animator.SetBool("isCaution", true);
+            // animator.CrossFade("caution", 0.2f);
+        }
+    }
+
+    public void UpdateLastKnowPosition(Vector3 newPosition)
+    {
+        if (currentTarget == null)
+        {
+            lastKnownDirection = newPosition;
+
+            if (!isAgressive || Time.realtimeSinceStartup - lastCautionPlayed > 4)
+            { 
+                lastCautionPlayed = Time.realtimeSinceStartup;
+                cautionTimer = cautionTimerNormal;
+                isCaution = true;
+                isAgressive = true;
+                //animator.SetBool("isCaution", true);
+                // animator.CrossFade("caution", 0.2f);
+            }
+            
+        }
+    }
+
     void HandleDetection()
     {
         Collider[] colliders = Physics.OverlapSphere(mTransform.position, fovRadius, controllerLayer);
 
         for (int i = 0; i < colliders.Length; i++)
         {
-            Controller c = colliders[i].transform.GetComponentInParent<Controller>();
-            if (c != null)
+            IPointOfInterest poi = colliders[i].transform.GetComponentInParent<IPointOfInterest>();
+            if (poi != null)
             {
-                if (RaycastToTarget(c))
+                if (poi.GetTransform() != poiTransform)
                 {
-                    break;
+                    if (RaycastToTarget(poi))
+                    {
+                        break;
+                    }
                 }
                 
             }
@@ -412,6 +546,9 @@ public class AIController : MonoBehaviour, IShootable
         isGrab = true;
         animator.Play("e_Grab_start");
         mTransform.rotation = targetRotation;
+
+        emotionText.text = "?";
+        emotionObj.SetActive(true);
     }
 
     public void KillByGrab()
@@ -430,6 +567,32 @@ public class AIController : MonoBehaviour, IShootable
         isGrab = false;
         animator.Play("e_grab_cancel");
         PlayCautionState(cautionTimerNormal, Time.deltaTime, false);
+    }
+
+    public Transform poiTransform;
+
+    public bool OnDetect(AIController aIController)
+    {
+        if (this.isDead)
+        {
+            if (!isSpottedDead)
+            {
+                aIController.emotionText.text = "?";
+                aIController.emotionObj.SetActive(true);
+                aIController.UpdateLastKnowPosition(mTransform.position);
+                isSpottedDead = true;
+            }
+            return true;
+        }
+        else
+        { 
+            return false;
+        }
+    }
+
+    public Transform GetTransform()
+    {
+        return poiTransform;
     }
 }
 

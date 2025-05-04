@@ -28,6 +28,16 @@ public class WeaponHook : MonoBehaviour
         }
 
         currentAmmo--;
+
+        Collider[] colliders = Physics.OverlapSphere(transform.position, 50, GameReferences.controllersLayer);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            AIController aIController = colliders[i].transform.GetComponent<AIController>();
+            if (aIController != null)
+            {
+                aIController.UpdateLastKnowPosition(transform.position);
+            }
+        }
     }
 
     public void Reload()

@@ -22,6 +22,7 @@ namespace SA
         Vector2 moveInputDirection;
         Vector2 lookInputDirection;
         float moveAmount;
+        bool isFPSinit;
         bool freeLook;
         bool grabInput;
         bool rawGrabInputDown;
@@ -31,6 +32,7 @@ namespace SA
         LayerMask ignoreForWall;
         
         PlayerControls inputActions;
+        public Transform wallCameraTarget;
 
         public enum ExecutionOrder { 
             fixedUpdate, update, lateUpdate
@@ -43,8 +45,19 @@ namespace SA
             inputActions.Player.FreeLookDirection.performed += i => moveInputDirection = i.ReadValue<Vector2>();
             inputActions.Player.Crouch.started += i => crouchInput = true;
             inputActions.Player.Grab.started += i => rawGrabInputDown = true;
+            inputActions.Player.Freelook.started += i => cameraManager.tiltAngle = 0;
 
             inputActions.Enable();
+
+            inputActions.Player.Movement.performed += ctx => Debug.Log("Me Muevo");
+            inputActions.Player.Crouch.performed += ctx => Debug.Log("Agacharse");
+            inputActions.Player.Grab.performed += ctx => Debug.Log("Grab");
+            inputActions.Player.Aim.performed += ctx => Debug.Log("Apuntar presionado");
+            inputActions.Player.Shoot.performed += ctx => Debug.Log("Disparar presionado");
+            inputActions.Player.Freelook.performed += ctx => Debug.Log("FPS");
+            inputActions.Player.FreeLookDirection.performed += ctx => Debug.Log("FPS Mover");
+            inputActions.Player.LeftBumper.performed += ctx => Debug.Log("Izquierda INV");
+            inputActions.Player.RightBumper.performed += ctx => Debug.Log("Derecha INV");
 
             cameraManager.wallCameraObject.SetActive(false);
             cameraManager.mainCameraObject.SetActive(true);
@@ -52,6 +65,7 @@ namespace SA
             cameraManager.mainCamera.cullingMask = ~0;
             ignoreForWall = ~(1 << 11 | 1 << 14 | 1 << 15);
             GameReferences.ignoreForShooting = ~(1 << 14 | 1 << 15);
+            GameReferences.controllersLayer = (1 << 11);
         }
 
         private void OnDisable()
@@ -75,6 +89,11 @@ namespace SA
         private void Update()
         {
             float delta = Time.deltaTime;
+
+            bool isInventory = UIManager.singleton.Tick(moveInputDirection.y, delta, IsPressed(inputActions.Player.LeftBumper.phase), false);//IsPressed(inputActions.Player.RightBumper.phase));
+
+            if (isInventory)
+                return;
 
             controller.isAiming = IsPressed(inputActions.Player.Aim.phase);
             freeLook = IsPressed(inputActions.Player.Freelook.phase);
@@ -100,12 +119,12 @@ namespace SA
                 }
             }
 
+            controller.isInteracting = controller.animator.GetBool("isInteracting");
+
             if (switchWeapon)
             {
                 controller.inventoryManager.SwitchWeapon();
             }
-
-            controller.isInteracting = controller.animator.GetBool("isInteracting");
             if (controller.isAiming)
             {
                 grabInput = false;
@@ -126,7 +145,8 @@ namespace SA
                     cameraManager.fpsCameraObject.SetActive(true);
                     //controller.meshRenderer.enabled = false;
                     controller.rigidbody.velocity = Vector3.zero;
-                    cameraManager.mainCamera.cullingMask = ~(1 << 12 | 1 << 14);
+                    cameraManager.mainCamera.cullingMask = ~(1 << 12);
+                    
                 }
 
             }
@@ -147,7 +167,29 @@ namespace SA
 
             controller.HandlerGrab(grabInput, doubleGrab, rawGrabInputDown);
 
-            
+            if (controller.isFPS)
+            {
+                if (!isFPSinit)
+                {
+                    cameraManager.fpsCameraObject.SetActive(true);
+                    cameraManager.mainCamera.cullingMask = ~(1 << 12);
+
+                    isFPSinit = true;
+                }
+                moveDirection = controller.mtransform.forward * moveInputDirection.y;
+                moveDirection += controller.mtransform.right * moveInputDirection.x;
+                moveDirection.Normalize();
+                controller.FPSRotate(lookInputDirection.x, delta);
+                controller.MoveProne(moveDirection, delta);
+
+                return;
+            }
+            if (isFPSinit)
+            {
+                cameraManager.fpsCameraObject.SetActive(false);
+                cameraManager.mainCamera.cullingMask = ~0;
+                isFPSinit = false;
+            }
 
             moveAmount = Mathf.Clamp01(Mathf.Abs(moveInputDirection.x) + Mathf.Abs(moveInputDirection.y));
             moveDirection = Vector3.forward * moveInputDirection.y;
@@ -157,6 +199,16 @@ namespace SA
             if (crouchInput)
             {
                 controller.isCrouch = !controller.isCrouch;
+
+                if (controller.isCrouch)
+                {
+                    controller.UpdatePoseStats(controller.crouching);
+                }
+                else
+                {
+                    controller.UpdatePoseStats(controller.standing);
+                }
+
                 if (!controller.isWall)
                     moveDirection = Vector3.zero;
             }
@@ -164,7 +216,8 @@ namespace SA
 
             if (controller.isFreelook)
             {
-                controller.FPSRotate(moveInputDirection.x, delta);
+                controller.FPSRotate(lookInputDirection.x, delta);
+                cameraManager.HandleFPSTilt(lookInputDirection.y, delta);
             }
             else
             {
@@ -220,7 +273,6 @@ namespace SA
 
         void HandleMovement(Vector3 moveDirection, float delta)
         {
-
             if (controller.isGrab)
             {
                 controller.HandleGrabAnimation(moveAmount, delta);
@@ -237,7 +289,7 @@ namespace SA
 
 
             Vector3 origin = controller.transform.position;
-            origin.y += 1;
+            origin.y += controller.getWallDetectOrigin;
 
 
             Debug.DrawRay(origin, moveDirection * wallDetectDistance);
@@ -262,6 +314,9 @@ namespace SA
             
             if (willStickToWall)
             {
+                wallCameraTarget.transform.position = controller.transform.position;
+                wallCameraTarget.transform.rotation = Quaternion.LookRotation(wallNormal);
+
                 controller.isProne = false; 
                 controller.isWall = true;
                 controller.Wallmovement(moveDirection, wallNormal, delta, ignoreForWall);
