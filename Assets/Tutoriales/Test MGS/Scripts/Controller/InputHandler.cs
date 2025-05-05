@@ -41,9 +41,9 @@ namespace SA
             inputActions = new PlayerControls();
             inputActions.Player.Movement.performed += i => moveInputDirection = i.ReadValue<Vector2>();
             inputActions.Player.FreeLookDirection.performed += i => moveInputDirection = i.ReadValue<Vector2>();
-            inputActions.Player.Crouch.started += i => crouchInput = true;
-            inputActions.Player.Grab.started += i => rawGrabInputDown = true;
-            inputActions.Player.Freelook.started += i => cameraManager.tiltAngle = 0;
+            inputActions.Player.Crouch.performed += i => crouchInput = true;
+            inputActions.Player.Grab.performed += i => rawGrabInputDown = true;
+            inputActions.Player.Freelook.performed += i => cameraManager.tiltAngle = 0;
 
             inputActions.Enable();
             cameraManager.Init();
@@ -179,6 +179,7 @@ namespace SA
                 controller.rigidbody.velocity = Vector3.zero;
             }
 
+            Debug.Log("grab activ: " + rawGrabInputDown);
             controller.HandlerGrab(grabInput, doubleGrab, rawGrabInputDown);
 
             if (controller.isFPS)

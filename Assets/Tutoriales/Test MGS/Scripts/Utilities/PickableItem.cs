@@ -9,7 +9,7 @@ public class PickableItem : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Enter onTriggerEnter");
+        
         Controller c = other.GetComponentInParent<Controller>();
         if (c != null)
         {

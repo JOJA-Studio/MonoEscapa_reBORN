@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
-    Controller playerController;
+    InputHandler playerController;
 
     private void Awake()
     {
@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
         {
             singleton = this;
             DontDestroyOnLoad(this.gameObject);
-            playerController = GameObject.FindObjectOfType<Controller>();
+            playerController = GameObject.FindObjectOfType<InputHandler>();
         }
         else
         {
@@ -38,9 +38,23 @@ public class GameManager : MonoBehaviour
         StartCoroutine(LoadSceneAndMovePlayer(stringName, targetTrigger));
     }
 
+    Vector3 targetDirection;
+    bool movePlayer;
+
+    private void Update()
+    {
+        if (movePlayer)
+        {
+            playerController.transform.position += playerController.transform.forward / Time.deltaTime * 2;
+            playerController.controller.animator.SetFloat("movement", 1);
+        }
+    }
+
     IEnumerator LoadSceneAndMovePlayer(string sceneName, Transform target)
     {
-        playerController.enabled = false;    
+        playerController.enabled = false;
+        targetDirection = target.forward;
+        playerController.transform.rotation = target.rotation;
 
         yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
 
@@ -65,10 +79,10 @@ public class GameManager : MonoBehaviour
         if (playerController == null)
         { 
             GameObject go = Instantiate(ResourcesManager.singleton.playerPrefab) as GameObject;
-            playerController = go.GetComponentInChildren<Controller>();
+            playerController = go.GetComponentInChildren<InputHandler>();
         }
 
-        playerController.mtransform.position = spawnPosition.position;
-        playerController.mtransform.transform.rotation = spawnPosition.rotation;
+        playerController.transform.position = spawnPosition.position;
+        playerController.transform.transform.rotation = spawnPosition.rotation;
     }
 }
