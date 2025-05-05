@@ -14,6 +14,17 @@ public class CameraManager : MonoBehaviour
     public float tiltAngle;
     public float tiltRotation = 5;
 
+    public static CameraManager singleton;
+
+    public void Init()
+    { 
+        wallCameraObject.transform.parent = transform;
+        mainCameraObject.transform.parent = transform;
+        this.transform.parent = null;
+
+        DontDestroyOnLoad(this.gameObject);
+    }
+
     public void HandleFPSTilt(float vertical, float delta)
     {
         tiltAngle -= vertical * tiltRotation;

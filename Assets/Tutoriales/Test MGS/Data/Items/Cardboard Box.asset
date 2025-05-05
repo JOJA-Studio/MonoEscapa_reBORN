@@ -9,14 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bcf9ac67342fd1349b4cf0612ba3d501, type: 3}
-  m_Name: Colt
+  m_Script: {fileID: 11500000, guid: 7a5b9fa0f2fe74d41ba05b3f0409dd93, type: 3}
+  m_Name: Cardboard Box
   m_EditorClassIdentifier: 
-  prefab: {fileID: 938062909371163941, guid: a8cab038060c12342b2f72aa38ea6796, type: 3}
+  prefab: {fileID: 2925916105986807524, guid: 2e764211bf3eb204ba7351f799fb3bac, type: 3}
   inventoryIcon: {fileID: 0}
   iconPivotPosition: {x: 0, y: 0}
-  magazineAmmo: 12
-  damageValue: 20
-  fireRate: 0.25
-  weaponSpread: 0.2
-  canMoveWithWeapon: 1

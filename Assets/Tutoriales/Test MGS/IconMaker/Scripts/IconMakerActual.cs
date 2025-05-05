@@ -15,22 +15,22 @@ public class IconMakerActual : MonoBehaviour
 
     public void CreateIconsForList(List<IICon> l, IconMakerAsset asset, IconMaker.OnIconComplete callback)
     {
-        //StartCoroutine(CreateIconsForList_Actual(l,asset, true,callback));
+        StartCoroutine(CreateIconsForList_Actual(l, asset, true, callback));
     }
 
 
-    //IEnumerator CreateIconsForList_Actual(List<IICon> l, IconMakerAsset asset, bool clearReference = true, IconMaker.OnIconComplete callback)
-    //{
-    //    int index = l.Count;
+    IEnumerator CreateIconsForList_Actual(List<IICon> l, IconMakerAsset asset, bool clearReference = true, IconMaker.OnIconComplete callback = null)
+    {
+        int index = l.Count;
 
-    //    while (l.Count > 0)
-    //    {
-    //        index--;
+        while (l.Count > 0)
+        {
+            index--;
 
-    //        yield return (CreateIconRoutine(l[index], asset, !(index > 0), callback));
-    //        l.Remove(l[index]);
-    //    }
-    //}
+            yield return (CreateIconRoutine(l[index], asset, !(index > 0), callback));
+            l.Remove(l[index]);
+        }
+    }
 
     IEnumerator CreateIconRoutine(IICon targetObject, IconMakerAsset asset, bool clearReference = true, IconMaker.OnIconComplete callback = null)
     {
@@ -61,10 +61,17 @@ public class IconMakerActual : MonoBehaviour
         Sprite sprite = Sprite.Create(imgPng, new Rect(0,0, imgPng.width, imgPng.height), targetObject.GetPivotPosition(), 100, 0, asset.spriteMeshType);
         targetObject.IconCreatedCallback(sprite);
 
-        callback?.Invoke();
 
         Destroy(go);
-        if(clearReference)
+        if (clearReference)
+        { 
             Destroy(this.gameObject);
+            callback?.Invoke();
+
+        }
+        else
+        { 
+            yield return new WaitForSeconds(.1f);
+        }
     }
 }

@@ -19,12 +19,26 @@ namespace SA
         public float fpsRotateSpeed = .2f;
         public float wallCheckDis = .2f;
         public float aimSpeed = 1;
+        public Transform mtransform {
+            get {
+                if (_mTransform == null)
+                { 
+                    _mTransform = this.transform;
+                }
+
+                return _mTransform;
+            }
+        }
+        Transform _mTransform;
+
         [HideInInspector]
-        public Transform mtransform;
         public Animator animator;
         [HideInInspector]
         public InventoryManager inventoryManager;
+        [HideInInspector]
+        public Animator boxAnimator;
 
+        public ControllerState controllerState;
         public bool isFPS;
         public bool isAiming;
         public bool isInteracting;
@@ -38,6 +52,9 @@ namespace SA
         public Transform wallCamParent;
         public Vector3 startWallCamPosition;
         CapsuleCollider controllerCollider;
+
+        [HideInInspector]
+        public GameObject storedObject;
 
         public PoseStats standing;
         public PoseStats crouching;
@@ -54,9 +71,13 @@ namespace SA
                 }
             }
         }
+
+        public enum ControllerState { 
+            normal,cardboardBox,prone
+        }
+
         private void Start()
         {
-            mtransform = this.transform;
             rigidbody = GetComponent<Rigidbody>();
             animator = GetComponentInChildren<Animator>();
             controllerCollider = GetComponent<CapsuleCollider>();
@@ -228,9 +249,20 @@ namespace SA
             if (m < 0.1f)
                 m = 0;
 
-           
+            switch (controllerState)
+            { 
+                case ControllerState.normal:
+                    animator.SetFloat("movement", m, 0.1f, delta);
+                    break;
+            
+                case ControllerState.cardboardBox:
+                    boxAnimator.SetFloat("movement", m, 0.1f, delta);
+                    break;
 
-            animator.SetFloat("movement", m, 0.1f, delta);
+                case ControllerState.prone:
+                    break;
+            }
+
         }
 
         float lastShot;
@@ -366,7 +398,21 @@ namespace SA
 
         public bool OnDetect(AIController aIController)
         {
-            aIController.OnDetectPlayer(this);
+            if (true)
+            {
+                if (rigidbody.velocity.sqrMagnitude > 0.1f)
+                    aIController.OnDetectPlayer(this);
+                else
+                { 
+                    return false;
+                }
+            }
+            else
+            {
+                aIController.OnDetectPlayer(this);
+                
+            }
+
             return true;
         }
 

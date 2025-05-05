@@ -8,8 +8,6 @@ namespace SA
 { 
     public class InputHandler : MonoBehaviour
     {
-        public Transform camHolder;
-
         public ExecutionOrder movementOrder;
         public Controller controller;
         public CameraManager cameraManager;
@@ -48,6 +46,7 @@ namespace SA
             inputActions.Player.Freelook.started += i => cameraManager.tiltAngle = 0;
 
             inputActions.Enable();
+            cameraManager.Init();
 
             inputActions.Player.Movement.performed += ctx => Debug.Log("Me Muevo");
             inputActions.Player.Crouch.performed += ctx => Debug.Log("Agacharse");
@@ -66,6 +65,18 @@ namespace SA
             ignoreForWall = ~(1 << 11 | 1 << 14 | 1 << 15);
             GameReferences.ignoreForShooting = ~(1 << 14 | 1 << 15);
             GameReferences.controllersLayer = (1 << 11);
+
+            UIManager.singleton.Init(controller.inventoryManager);
+            List<IICon> l = new List<IICon>();
+            l.AddRange(ResourcesManager.singleton.GetAllItems());
+            IconMaker.RequestIconForList(l, null);
+        }
+
+        void UpdateUIManagerWithItems()
+        { 
+            List<Item> l = new List<Item>();
+            l.AddRange(ResourcesManager.singleton.GetAllItems());
+            UIManager.singleton.CreateSlotsForItemList(l);
         }
 
         private void OnDisable()

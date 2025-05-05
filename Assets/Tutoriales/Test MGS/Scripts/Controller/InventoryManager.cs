@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using SA;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -18,19 +19,27 @@ public class InventoryManager : MonoBehaviour
     }
     public WeaponHook currentWeaponHook;
 
+    public List<Item> pickedUpItems = new List<Item>();
     public List<WeaponItem> allWeapons;
     Dictionary<WeaponItem, WeaponHook> weaponsDict = new Dictionary<WeaponItem, WeaponHook>();
+
+    Controller playerController;
+    PassiveItem currentPassiveItem;
 
     private void Start()
     {
         if(allWeapons.Count > 0)
             LoadWeapon(allWeapons[0]);
+
+        playerController = GetComponent<Controller>();
     }
 
     public void PickUpItem(Item item)
     {
         if (item is WeaponItem)
         {
+            pickedUpItems.Add(item);
+
             WeaponItem w = (WeaponItem)item;
             if (allWeapons.Contains(w))
             {
@@ -41,6 +50,11 @@ public class InventoryManager : MonoBehaviour
                 allWeapons.Add(w);
                 LoadWeapon(w);
             }
+        }
+
+        if (item is PassiveItem)
+        {
+            pickedUpItems.Add(item);
         }
     }
 
@@ -66,6 +80,29 @@ public class InventoryManager : MonoBehaviour
         LoadWeapon(allWeapons[index]);
     }
 
+    public void LoadItem(Item targetItem)
+    {
+        if (targetItem is WeaponItem)
+        {
+            LoadWeapon((WeaponItem)targetItem);
+        }
+
+        if (playerController != null)
+        { 
+            if (targetItem is PassiveItem)
+            {
+                if (currentPassiveItem != null)
+                {
+                    currentPassiveItem.OnUnEquip(playerController);
+                }
+
+                PassiveItem passive = (PassiveItem)targetItem;
+                passive.OnEquip(playerController);
+                currentPassiveItem = passive;
+            }
+        }
+    }
+
     public void LoadWeapon(WeaponItem weaponItem)
     {
         if (currentWeaponHook != null)
@@ -85,10 +122,11 @@ public class InventoryManager : MonoBehaviour
             go.transform.localRotation = Quaternion.identity;
             go.transform.localScale = Vector3.one;
             currentWeaponHook = go.GetComponent<WeaponHook>();
-            currentWeaponHook.Init(weaponItem);
             weaponsDict.Add(weaponItem, currentWeaponHook);
         }
 
+        currentWeaponHook.gameObject.SetActive(true);
+        currentWeaponHook.Init(weaponItem);
     }
 }
 

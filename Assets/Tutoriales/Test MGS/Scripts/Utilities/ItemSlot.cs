@@ -10,6 +10,25 @@ public class ItemSlot : MonoBehaviour
     public Image img;
     public Item targetItem;
 
+    private void OnEnable()
+    {
+        if (UIManager.singleton == null)
+            return;
+
+        if (targetItem != null)
+        {
+            bool isValid = UIManager.singleton.isInInventory(targetItem);
+            if (!isValid)
+            {
+                this.gameObject.SetActive(false);
+            }
+        }
+        else
+        { 
+            this.gameObject.SetActive(false);
+        }
+    }
+
     public void LoadItem(Item targetItem)
     { 
         this.targetItem = targetItem;
@@ -17,6 +36,10 @@ public class ItemSlot : MonoBehaviour
         if (targetItem.inventoryIcon == null)
         {
             IconMaker.RequestIcon(targetItem, LoadIcon);
+        }
+        else
+        {
+            LoadIcon();
         }
     }
 
