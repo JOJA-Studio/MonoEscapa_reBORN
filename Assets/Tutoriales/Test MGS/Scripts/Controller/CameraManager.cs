@@ -18,11 +18,13 @@ public class CameraManager : MonoBehaviour
 
     public void Init()
     { 
-        wallCameraObject.transform.parent = transform;
-        mainCameraObject.transform.parent = transform;
         this.transform.parent = null;
 
+        singleton = this;
         DontDestroyOnLoad(this.gameObject);
+
+        Cinemachine.CinemachineConfiner cinemachineConfiner = GameObject.FindObjectOfType<Cinemachine.CinemachineConfiner>();
+        cinemachineConfiner.m_BoundingVolume = LevelManager.singleton.cameraConfinerCollider;
     }
 
     public void HandleFPSTilt(float vertical, float delta)

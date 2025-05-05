@@ -33,6 +33,23 @@ public class GameManager : MonoBehaviour
         StartCoroutine(LoadScene(stringName));
     }
 
+    public void LoadTargetScene(string stringName, Transform targetTrigger)
+    {
+        StartCoroutine(LoadSceneAndMovePlayer(stringName, targetTrigger));
+    }
+
+    IEnumerator LoadSceneAndMovePlayer(string sceneName, Transform target)
+    {
+        playerController.enabled = false;    
+
+        yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+
+        if (LevelManager.singleton != null)
+        {
+            InitializeControllerForScene(LevelManager.singleton.playerSpawnposition);
+        }
+    }
+
     IEnumerator LoadScene(string sceneName)
     { 
         yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);

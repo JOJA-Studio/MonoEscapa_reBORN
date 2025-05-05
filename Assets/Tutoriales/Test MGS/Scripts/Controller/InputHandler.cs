@@ -67,9 +67,12 @@ namespace SA
             GameReferences.controllersLayer = (1 << 11);
 
             UIManager.singleton.Init(controller.inventoryManager);
+
             List<IICon> l = new List<IICon>();
             l.AddRange(ResourcesManager.singleton.GetAllItems());
             IconMaker.RequestIconForList(l, null);
+
+            DontDestroyOnLoad(this.gameObject);
         }
 
         void UpdateUIManagerWithItems()
