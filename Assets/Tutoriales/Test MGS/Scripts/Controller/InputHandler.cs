@@ -1,38 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
-
 
 namespace SA
-{ 
+{
     public class InputHandler : MonoBehaviour
     {
         public ExecutionOrder movementOrder;
         public Controller controller;
-        public CameraManager cameraManager;
 
+        public CameraManager cameraManager;
         Vector3 moveDirection;
-        public float wallDetectDistance = .5f;
-        public float wallDetectDistanceOnWall = 1.2f;
-        public float wallAngleTreshold = 35;
+        public float wallDetectDis = .5f;
+        public float wallDetectDisOnWall = 1.2f;
+        public float wallAngleThreshold = 35;
 
         Vector2 moveInputDirection;
         Vector2 lookInputDirection;
         float moveAmount;
-        bool isFPSinit;
         bool freeLook;
         bool grabInput;
         bool rawGrabInputDown;
         bool switchWeapon;
         bool crouchInput;
         float grabDeadTimer;
+        bool isFPSinit;
         LayerMask ignoreForWall;
-        
+
         PlayerControls inputActions;
         public Transform wallCameraTarget;
 
-        public enum ExecutionOrder { 
+        public Transform mTransform
+        {
+            get
+            {
+                return controller.mTransform;
+            }
+        }
+
+        public enum ExecutionOrder
+        {
             fixedUpdate, update, lateUpdate
         }
 
@@ -40,51 +48,51 @@ namespace SA
         {
             inputActions = new PlayerControls();
             inputActions.Player.Movement.performed += i => moveInputDirection = i.ReadValue<Vector2>();
-            inputActions.Player.FreeLookDirection.performed += i => moveInputDirection = i.ReadValue<Vector2>();
-            inputActions.Player.Crouch.performed += i => crouchInput = true;
-            inputActions.Player.Grab.performed += i => rawGrabInputDown = true;
-            inputActions.Player.Freelook.performed += i => cameraManager.tiltAngle = 0;
+            inputActions.Player.FreeLookDirection.performed += i => lookInputDirection = i.ReadValue<Vector2>();
+            inputActions.Player.Crouch.started += i => crouchInput = true;
+            inputActions.Player.Grab.started += i => rawGrabInputDown = true;
+            inputActions.Player.Freelook.started += i => cameraManager.tiltAngle = 0;
 
             inputActions.Enable();
             cameraManager.Init();
-
-            inputActions.Player.Movement.performed += ctx => Debug.Log("Me Muevo");
-            inputActions.Player.Crouch.performed += ctx => Debug.Log("Agacharse");
-            inputActions.Player.Grab.performed += ctx => Debug.Log("Grab");
-            inputActions.Player.Aim.performed += ctx => Debug.Log("Apuntar presionado");
-            inputActions.Player.Shoot.performed += ctx => Debug.Log("Disparar presionado");
-            inputActions.Player.Freelook.performed += ctx => Debug.Log("FPS");
-            inputActions.Player.FreeLookDirection.performed += ctx => Debug.Log("FPS Mover");
-            inputActions.Player.LeftBumper.performed += ctx => Debug.Log("Izquierda INV");
-            inputActions.Player.RightBumper.performed += ctx => Debug.Log("Derecha INV");
 
             cameraManager.wallCameraObject.SetActive(false);
             cameraManager.mainCameraObject.SetActive(true);
             cameraManager.fpsCameraObject.SetActive(false);
             cameraManager.mainCamera.cullingMask = ~0;
+
             ignoreForWall = ~(1 << 11 | 1 << 14 | 1 << 15);
             GameReferences.ignoreForShooting = ~(1 << 14 | 1 << 15);
             GameReferences.controllersLayer = (1 << 11);
+
 
             UIManager.singleton.Init(controller.inventoryManager);
 
             List<IICon> l = new List<IICon>();
             l.AddRange(ResourcesManager.singleton.GetAllItems());
-            IconMaker.RequestIconForList(l, null);
+            IconMaker.RequestIconForList(l, UpdateUIManagerWithItems);
 
             DontDestroyOnLoad(this.gameObject);
         }
 
         void UpdateUIManagerWithItems()
-        { 
+        {
             List<Item> l = new List<Item>();
             l.AddRange(ResourcesManager.singleton.GetAllItems());
             UIManager.singleton.CreateSlotsForItemList(l);
         }
 
+        private void OnEnable()
+        {
+            if (inputActions != null)
+                inputActions.Enable();
+
+            moveInputDirection = Vector2.zero;
+        }
+
         private void OnDisable()
         {
-            inputActions.Disable(); 
+            inputActions.Disable();
         }
 
         private void FixedUpdate()
@@ -92,7 +100,7 @@ namespace SA
             if (movementOrder == ExecutionOrder.fixedUpdate)
             {
                 HandleMovement(moveDirection, Time.fixedDeltaTime);
-            }  
+            }
         }
 
         bool IsPressed(UnityEngine.InputSystem.InputActionPhase phase)
@@ -104,7 +112,8 @@ namespace SA
         {
             float delta = Time.deltaTime;
 
-            bool isInventory = UIManager.singleton.Tick(moveInputDirection.y, delta, IsPressed(inputActions.Player.LeftBumper.phase), false);//IsPressed(inputActions.Player.RightBumper.phase));
+            bool isInventory = UIManager.singleton.Tick(moveInputDirection.y, delta, IsPressed(inputActions.Player.LeftBumper.phase),
+                false);//IsPressed(inputActions.Player.RightBumper.phase));
 
             if (isInventory)
                 return;
@@ -117,18 +126,18 @@ namespace SA
             if (rawGrabInputHold)
             {
                 grabInput = true;
-                if (grabDeadTimer < 1)
-                { 
+                if (grabDeadTimer > 0)
+                {
                     doubleGrab = true;
                 }
-                grabDeadTimer = 0;
 
+                grabDeadTimer = 0;
             }
             else
             {
                 grabDeadTimer += delta;
                 if (grabDeadTimer > 1)
-                { 
+                {
                     grabInput = false;
                 }
             }
@@ -139,13 +148,14 @@ namespace SA
             {
                 controller.inventoryManager.SwitchWeapon();
             }
+
             if (controller.isAiming)
             {
                 grabInput = false;
                 freeLook = false;
             }
             if (grabInput)
-            { 
+            {
                 freeLook = false;
             }
 
@@ -157,12 +167,10 @@ namespace SA
                     controller.isAiming = false;
                     controller.isProne = false;
                     cameraManager.fpsCameraObject.SetActive(true);
-                    //controller.meshRenderer.enabled = false;
                     controller.rigidbody.velocity = Vector3.zero;
                     cameraManager.mainCamera.cullingMask = ~(1 << 12);
-                    
-                }
 
+                }
             }
             else
             {
@@ -170,35 +178,37 @@ namespace SA
                 {
                     controller.isFreelook = false;
                     cameraManager.fpsCameraObject.SetActive(false);
-                    //controller.meshRenderer.enabled = true;
                     cameraManager.mainCamera.cullingMask = ~0;
                 }
             }
+
             if (controller.isInteracting)
             {
                 controller.rigidbody.velocity = Vector3.zero;
+                return;
             }
 
-            Debug.Log("grab activ: " + rawGrabInputDown);
-            controller.HandlerGrab(grabInput, doubleGrab, rawGrabInputDown);
+            controller.HandleGrab(grabInput, doubleGrab, rawGrabInputDown);
 
             if (controller.isFPS)
             {
                 if (!isFPSinit)
                 {
                     cameraManager.fpsCameraObject.SetActive(true);
-                    cameraManager.mainCamera.cullingMask = ~(1 << 12);
+                    cameraManager.mainCamera.cullingMask = ~(1 << 10);
 
                     isFPSinit = true;
                 }
-                moveDirection = controller.mtransform.forward * moveInputDirection.y;
-                moveDirection += controller.mtransform.right * moveInputDirection.x;
+
+                moveDirection = controller.mTransform.forward * moveInputDirection.y;
+                moveDirection += controller.mTransform.right * moveInputDirection.x;
                 moveDirection.Normalize();
                 controller.FPSRotate(lookInputDirection.x, delta);
                 controller.MoveProne(moveDirection, delta);
 
                 return;
             }
+
             if (isFPSinit)
             {
                 cameraManager.fpsCameraObject.SetActive(false);
@@ -229,6 +239,7 @@ namespace SA
             }
 
 
+
             if (controller.isFreelook)
             {
                 controller.FPSRotate(lookInputDirection.x, delta);
@@ -240,6 +251,7 @@ namespace SA
                 {
                     controller.isAiming = false;
                 }
+
                 if (controller.isAiming)
                 {
                     //controller.isWall = false;
@@ -262,9 +274,9 @@ namespace SA
                         controller.rigidbody.velocity = Vector3.zero;
                     }
                 }
-                
                 else
                 {
+
                     if (movementOrder == ExecutionOrder.update)
                     {
                         HandleMovement(moveDirection, delta);
@@ -281,7 +293,7 @@ namespace SA
         }
 
         void ResetInput()
-        { 
+        {
             rawGrabInputDown = false;
             crouchInput = false;
         }
@@ -302,45 +314,40 @@ namespace SA
                 return;
             }
 
-
             Vector3 origin = controller.transform.position;
             origin.y += controller.getWallDetectOrigin;
 
 
-            Debug.DrawRay(origin, moveDirection * wallDetectDistance);
-
             bool willStickToWall = false;
             Vector3 wallNormal = Vector3.zero;
 
-            float detectDis = wallDetectDistance;
+            float detectDis = wallDetectDis;
             if (controller.isWall)
             {
-                detectDis = wallDetectDistanceOnWall; 
+                detectDis = wallDetectDisOnWall;
             }
 
             Debug.DrawRay(origin, moveDirection * detectDis);
 
-            if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, wallDetectDistance, ignoreForWall))
+            if (Physics.SphereCast(origin, 0.25f, moveDirection, out RaycastHit hit, detectDis, ignoreForWall))
             {
-                    willStickToWall = true;
-                    wallNormal = hit.normal;
-                //    Debug.Log(hit.transform.name);
+                willStickToWall = true;
+                wallNormal = hit.normal;
             }
-            
+
             if (willStickToWall)
             {
                 wallCameraTarget.transform.position = controller.transform.position;
                 wallCameraTarget.transform.rotation = Quaternion.LookRotation(wallNormal);
 
-                controller.isProne = false; 
+                controller.isProne = false;
                 controller.isWall = true;
-                controller.Wallmovement(moveDirection, wallNormal, delta, ignoreForWall);
+                controller.WallMovement(moveDirection, wallNormal, delta, ignoreForWall);
                 cameraManager.wallCameraObject.SetActive(true);
                 cameraManager.mainCameraObject.SetActive(false);
             }
             else
             {
-
                 controller.isWall = false;
                 cameraManager.wallCameraObject.SetActive(false);
                 cameraManager.mainCameraObject.SetActive(true);
@@ -353,10 +360,10 @@ namespace SA
                 {
                     controller.Move(moveDirection, delta);
                     controller.HandleRotation(moveDirection, delta);
-                    controller.HandleMovementAnimations(moveAmount, delta); 
+                    controller.HandleMovementAnimations(moveAmount, delta);
                 }
-            }            
+            }
+
         }
     }
-
 }

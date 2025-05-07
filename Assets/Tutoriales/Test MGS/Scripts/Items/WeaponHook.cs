@@ -19,15 +19,28 @@ public class WeaponHook : MonoBehaviour
 
     public void Shoot()
     {
+        Debug.Log("Disparo realizado");
+        Debug.DrawRay(bulletEmmiter.position, bulletEmmiter.forward * 100f, Color.red, 1f);
+
         if (particles != null)
         { 
             for (int i = 0; i < particles.Length; i++)
             {
                 particles[i].Play();
-            }        
+            }
         }
 
         currentAmmo--;
+
+        RaycastHit hit;
+        if (Physics.Raycast(bulletEmmiter.position, bulletEmmiter.forward, out hit, 100f))
+        {
+            if (hit.collider.CompareTag("Player"))
+            {
+                Debug.Log("Jugador alcanzado por disparo enemigo");
+                ConsciousnessBar.instance.takeDamage(1);
+            }
+        }
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, 50, GameReferences.controllersLayer);
         for (int i = 0; i < colliders.Length; i++)

@@ -29,15 +29,10 @@ public class ConsciousnessBar : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-
-    // Start is called before the first frame update
     void Start()
     {
         health = maxHealth;
     }
-
-    // Update is called once per frame
     void Update()
     {
         if (ConsciousnessSlider.value != health)
@@ -45,10 +40,10 @@ public class ConsciousnessBar : MonoBehaviour
             ConsciousnessSlider.value = health;
         }
 
-        if (Input.GetKeyDown(KeyCode.J)) //test Health bar
-        {
-            takeDamage(10);
-        }
+        //if (Input.GetKeyDown(KeyCode.J)) 
+        //{
+        //    takeDamage(10);
+        //}
 
         if (ConsciousnessSlider.value != easeConsciousnessSlider.value)
         {

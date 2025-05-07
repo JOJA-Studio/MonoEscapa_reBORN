@@ -7,6 +7,7 @@ using UnityEngine.AI;
 using UnityEngine.UIElements;
 using static Interfaces;
 using TMPro;
+using GinjaGaming.FinalCharacterController;
 
 public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 {
@@ -40,7 +41,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
     Vector3 lastKnownPosition;
     Vector3 lastKnownDirection;
 
-    Controller currentTarget;
+    PlayerController currentTarget;
 
     LayerMask controllerLayer;
     LayerMask ignoreForDetection;
@@ -177,7 +178,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
         {
             if (!RaycastToTarget(currentTarget))
             {
-                lastKnownDirection = (currentTarget.mtransform.position - lastKnownPosition).normalized;
+                lastKnownDirection = (currentTarget.transform.position - lastKnownPosition).normalized;
                 hasTargetRotation = true;
                 scanTime = Random.Range(minScanTime, maxScanTime);
                 aIPhase = AIPhase.scanRan;
@@ -426,29 +427,6 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
                 {
                     return false;
                 }
-
-                //Controller targetController = hit.transform.GetComponentInParent<Controller>();
-                //if (targetController != null)
-                //{
-                //    if (!isAgressive || currentTarget == null)
-                //    {
-                //        cautionTimer = cautionTimerNormal;
-                //        isCaution = true;
-                //        isAgressive = true;
-                //        //animator.SetBool("isCaution", true);
-                //       // animator.CrossFade("caution", 0.2f);
-                //    }
-
-                //    currentTarget = targetController;
-                //    animator.SetBool("isAggressive", true);
-                //    lastKnownPosition = currentTarget.transform.position;
-                //    //aIPhase = AIPhase.scanRan;
-                //    return true;
-                //}
-                //else
-                //{
-                //    return false;
-                //}
             }
             else
             {
@@ -461,7 +439,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
         }
     }
 
-    public void OnDetectPlayer(Controller targetPlayer)
+    public void OnDetectPlayer(PlayerController targetPlayer)
     {
 
         SetToCautiousState();
@@ -469,7 +447,6 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 
         animator.SetBool("isAggressive", true);
         lastKnownPosition = currentTarget.transform.position;
-        //aIPhase = AIPhase.scanRan;
     }
 
     public void SetToCautiousState()
@@ -482,8 +459,6 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
             cautionTimer = cautionTimerNormal;
             isCaution = true;
             isAgressive = true;
-            //animator.SetBool("isCaution", true);
-            // animator.CrossFade("caution", 0.2f);
         }
     }
 
@@ -499,8 +474,6 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
                 cautionTimer = cautionTimerNormal;
                 isCaution = true;
                 isAgressive = true;
-                //animator.SetBool("isCaution", true);
-                // animator.CrossFade("caution", 0.2f);
             }
             
         }
@@ -556,17 +529,6 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
         animator.Play("grab_death");
         this.enabled = false;
         isDead = true;
-    }
-
-    public void StopGrab(Controller target)
-    {
-        currentTarget = target;
-        lastKnownPosition = currentTarget.mtransform.position;
-        agent.enabled = true;
-        agent.updateRotation = false;
-        isGrab = false;
-        animator.Play("e_grab_cancel");
-        PlayCautionState(cautionTimerNormal, Time.deltaTime, false);
     }
 
     public Transform poiTransform;

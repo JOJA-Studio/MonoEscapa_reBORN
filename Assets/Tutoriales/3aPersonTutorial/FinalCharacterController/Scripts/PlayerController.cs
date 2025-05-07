@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static Interfaces;
 
 namespace GinjaGaming.FinalCharacterController
 {
     [DefaultExecutionOrder(-1)]
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : MonoBehaviour, IPointOfInterest
     {
         #region Class Variables
         [Header("Components")]
@@ -295,6 +296,17 @@ namespace GinjaGaming.FinalCharacterController
         {
             // This means player is moving diagonally at 45 degrees or forward, if so, we can run
             return _playerLocomotionInput.MovementInput.y >= Mathf.Abs(_playerLocomotionInput.MovementInput.x);
+        }
+
+        public bool OnDetect(AIController aIController)
+        {
+            aIController.OnDetectPlayer(this);
+            return true;
+        }
+
+        public Transform GetTransform()
+        {
+            return this.transform;
         }
         #endregion
     }

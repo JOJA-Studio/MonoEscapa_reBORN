@@ -10,13 +10,13 @@ public class MenuPausa : MonoBehaviour
     [Header("Input Actions Pause")]
     [SerializeField] private InputActionReference pause;
     [Space(20)]
-    [Header("CanvasGruop Pause")]
+    [Header("CanvasGruop Pause and Lifebar")]
     [SerializeField] private CanvasGroup pauseScreen;
+    [SerializeField] CanvasGroup lifeBar;
     [Space(20)]
     [Header("SFX Buttons")]
     [SerializeField] AudioSource SFXButtons;
     [SerializeField] AudioClip[] hoversAudio;
-
     [SerializeField] PlayerController controller;
     [SerializeField] GameObject player;
 
