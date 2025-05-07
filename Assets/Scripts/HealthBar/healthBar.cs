@@ -60,4 +60,9 @@ public class ConsciousnessBar : MonoBehaviour
     {
         health -= v;
     }
+
+    public void restoreHealt(float v)
+    {
+        health += v;
+    }
 }
