@@ -8,7 +8,7 @@ public class HealthSystemEnemies : MonoBehaviour
     private float currentHealth;
     private HurtCollider hurtCollider;
     public Animator animator;
-    public Rigidbody rb;
+    public Rigidbody rigidoCuerpo;
 
     private void Awake()
     {
@@ -38,7 +38,7 @@ public class HealthSystemEnemies : MonoBehaviour
         animator.SetBool("die", true);
         //rb.isKinematic = false;
 
-        StartCoroutine(MuerteSecuencia(rb, gameObject));
+        StartCoroutine(MuerteSecuencia(rigidoCuerpo, gameObject));
 
         //Destroy(gameObject);
     }

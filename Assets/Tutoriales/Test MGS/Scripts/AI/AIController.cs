@@ -8,12 +8,12 @@ using UnityEngine.UIElements;
 using static Interfaces;
 using TMPro;
 using GinjaGaming.FinalCharacterController;
+using UnityEditorInternal.VersionControl;
 
 public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 {
-
     NavMeshAgent agent;
-    new Rigidbody rigidbody;
+    new Rigidbody rigidoCuerpo;
     public Animator animator;
 
     public int index;
@@ -60,7 +60,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
     private void Start()
     {
         agent = GetComponentInChildren<NavMeshAgent>();
-        rigidbody = GetComponentInChildren<Rigidbody>();
+        rigidoCuerpo = GetComponentInChildren<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
         inventoryManager = GetComponentInChildren<InventoryManager>();
         currentWaypoint = waypoints[index];

@@ -50,7 +50,11 @@ public class ConsciousnessBar : MonoBehaviour
             easeConsciousnessSlider.value = Mathf.Lerp(easeConsciousnessSlider.value, health, lerpSpeed);
         }
 
-        if (health <= 0)
+        if (health > 100)
+        {
+            health = 100;
+        }
+        else if (health <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
