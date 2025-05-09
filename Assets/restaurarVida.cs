@@ -14,6 +14,8 @@ public class restaurarVida : MonoBehaviour
     [SerializeField] GameObject SpawnEndValue;
     [SerializeField] GameObject meAnItem;
     public float lifeToRestore = 50;
+    float delay = 0.5f;
+    public AudioSource healsound;
 
     private void Start()
     {
@@ -37,4 +39,5 @@ public class restaurarVida : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+
 }

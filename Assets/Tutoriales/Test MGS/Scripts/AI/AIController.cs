@@ -8,12 +8,15 @@ using UnityEngine.UIElements;
 using static Interfaces;
 using TMPro;
 using GinjaGaming.FinalCharacterController;
+using UnityEngine.Video;
 
 public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 {
     NavMeshAgent agent;
     new Rigidbody rigidoCuerpo;
     public Animator animator;
+    public AudioSource veoPlayer;
+    bool enemyVisto;
 
     public int index;
     public Waypoint[] waypoints;
@@ -441,6 +444,8 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
     public void OnDetectPlayer(PlayerController targetPlayer)
     {
 
+            //veoPlayer.PlayOneShot();
+  
         SetToCautiousState();
         currentTarget = targetPlayer;
 
@@ -540,6 +545,7 @@ public class AIController : MonoBehaviour, IShootable, IPointOfInterest
             {
                 aIController.emotionText.text = "?";
                 aIController.emotionObj.SetActive(true);
+                enemyVisto = true;
                 aIController.UpdateLastKnowPosition(mTransform.position);
                 isSpottedDead = true;
             }
