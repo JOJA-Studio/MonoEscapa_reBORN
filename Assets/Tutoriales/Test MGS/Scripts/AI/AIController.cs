@@ -8,7 +8,6 @@ using UnityEngine.UIElements;
 using static Interfaces;
 using TMPro;
 using GinjaGaming.FinalCharacterController;
-using UnityEditorInternal.VersionControl;
 
 public class AIController : MonoBehaviour, IShootable, IPointOfInterest
 {

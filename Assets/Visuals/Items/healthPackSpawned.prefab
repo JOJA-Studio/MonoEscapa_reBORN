@@ -71,6 +71,7 @@ MonoBehaviour:
   duracion: 0.5
   jumpPower: 1
   numSaltos: 1
+  isGroundHealthPack: 0
   SpawnEndValue: {fileID: 3813370389021690496}
   meAnItem: {fileID: 3571464330853233155}
   lifeToRestore: 50

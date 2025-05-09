@@ -5,30 +5,33 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SplashCompany.unity
     guid: 0945520a318f7f0458947b8bab4b9d24
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/PressAnyKey.unity
     guid: fbaebe77f970386409d76644ea071560
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MainMenu.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Level1.unity
     guid: 82bec9f5f294ee741b3d2b013249a7ad
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/DayNightCycle.unity
     guid: a3596ee6218b90f438e13e4c2faf44ef
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/copylvl1/copylvl1.unity
     guid: 35b9c3a95457fce4f8ff801846722b0d
-  - enabled: 1
+  - enabled: 0
     path: Assets/Tutoriales/Test MGS/MGS Tutorial Test.unity
     guid: 71d9e13e6128266488bb5c039026365c
-  - enabled: 1
+  - enabled: 0
     path: Assets/Tutoriales/Test MGS/Scene 2.unity
     guid: db2de8bbdeb642245be9bab1f4b9cf28
+  - enabled: 1
+    path: "Assets/Scenes/Dise\xF1oFinal/primerNivel.unity"
+    guid: cba157bbfc5268346a89b61c14b53ef2
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 99f88e6e9a4de4e4fa370dd75264d02a,
       type: 2}
