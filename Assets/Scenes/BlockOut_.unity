@@ -1241,6 +1241,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2647386853077353368, guid: a3f3d103ec157b147a945b221783b0c8,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.60000014
+      objectReference: {fileID: 0}
+    - target: {fileID: 2647386853077353368, guid: a3f3d103ec157b147a945b221783b0c8,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -5
+      objectReference: {fileID: 0}
     - target: {fileID: 4556449162375997348, guid: a3f3d103ec157b147a945b221783b0c8,
         type: 3}
       propertyPath: m_Name
@@ -1295,6 +1305,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8318339685911013020, guid: a3f3d103ec157b147a945b221783b0c8,
+        type: 3}
+      propertyPath: CameraDistance
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8524223359585733453, guid: a3f3d103ec157b147a945b221783b0c8,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.60000014
+      objectReference: {fileID: 0}
+    - target: {fileID: 8524223359585733453, guid: a3f3d103ec157b147a945b221783b0c8,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

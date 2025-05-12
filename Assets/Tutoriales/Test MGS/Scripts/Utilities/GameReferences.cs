@@ -5,6 +5,9 @@ using UnityEngine.UIElements;
 
 public static class GameReferences 
 {
+    public static LayerMask ignoreForShooting;
+    public static LayerMask controllersLayer;
+
     static ObjectPooler _objectPooler;
     public static ObjectPooler objectPooler { 
         get{
@@ -18,10 +21,10 @@ public static class GameReferences
         }
     }
 
-    public static void RaycastShoot(Transform mTransform, float spread)
+    public static void RaycastShoot(Transform mTransform, WeaponHook weaponHook)
     {
         RaycastHit hit;
-        Vector3 origin = Random.insideUnitCircle * spread;
+        Vector3 origin = Random.insideUnitCircle * weaponHook.baseItem.weaponSpread;
         origin = mTransform.TransformPoint(origin);
         origin.y += 1.3f;
         origin += mTransform.forward;
@@ -30,7 +33,7 @@ public static class GameReferences
 
         Vector3 endPosition = origin + mTransform.forward * 100;
 
-        if (Physics.Raycast(origin, mTransform.forward, out hit, 100))
+        if (Physics.Raycast(origin, mTransform.forward, out hit, 100, ignoreForShooting))
         {
             IShootable shootable = hit.transform.GetComponentInParent<IShootable>();
             if (shootable != null)
@@ -52,7 +55,7 @@ public static class GameReferences
         }
         GameObject go = objectPooler.GetObject("bulletLine");
         LineRenderer line  = go.GetComponent<LineRenderer>();
-        line.SetPosition(0, origin);
+        line.SetPosition(0, weaponHook.bulletEmmiter.position);
         line.SetPosition(1, endPosition);
         go.SetActive(true);
     }

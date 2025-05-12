@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: 78cfaa4332c938743abfa342eb306a7e
+<<<<<<<< HEAD:Assets/EnemyHealth.cs.meta
+guid: 924a915da6656f14e8ad1f67f2db5155
+========
+guid: a1b52099da437e04a919f6e1d39d47b0
+>>>>>>>> fcc68d3ea43f8150bc043f8714ba54241ae39bc8:Assets/HitHurtSystem/HealthSystem.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Enemy
+  - testColision
   layers:
   - Default
   - TransparentFX
@@ -19,6 +20,9 @@ TagManager:
   - Player
   - Controllers
   - PlayerModel
+  - PostProcessing
+  - Camera Colliders
+  - Triggers
   - 
   - 
   - 
@@ -29,10 +33,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - IconMaker
   - 
   - 
   - 

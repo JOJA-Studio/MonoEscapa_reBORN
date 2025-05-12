@@ -29,15 +29,10 @@ public class ConsciousnessBar : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-
-    // Start is called before the first frame update
     void Start()
     {
         health = maxHealth;
     }
-
-    // Update is called once per frame
     void Update()
     {
         if (ConsciousnessSlider.value != health)
@@ -45,17 +40,21 @@ public class ConsciousnessBar : MonoBehaviour
             ConsciousnessSlider.value = health;
         }
 
-        if (Input.GetKeyDown(KeyCode.J)) //test Health bar
-        {
-            takeDamage(10);
-        }
+        //if (Input.GetKeyDown(KeyCode.J)) 
+        //{
+        //    takeDamage(10);
+        //}
 
         if (ConsciousnessSlider.value != easeConsciousnessSlider.value)
         {
             easeConsciousnessSlider.value = Mathf.Lerp(easeConsciousnessSlider.value, health, lerpSpeed);
         }
 
-        if (health <= 0)
+        if (health > 100)
+        {
+            health = 100;
+        }
+        else if (health <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
@@ -64,5 +63,10 @@ public class ConsciousnessBar : MonoBehaviour
     public void takeDamage(float v)
     {
         health -= v;
+    }
+
+    public void restoreHealt(float v)
+    {
+        health += v;
     }
 }

@@ -8,16 +8,43 @@ public class ChangeBoolStatus : StateMachineBehaviour
     public string boolName;
     public bool status;
     public bool resetOnExit;
-    public float delay = .1f;
+    public float delay = 0;
     Controller controller;
+    AIController aiController;
+    public bool isPlayer;
+
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (controller == null)
+        if (isPlayer)
+        { 
+            if (controller == null)
             controller = animator.GetComponentInParent<Controller>();
-        
-        
-        controller.StartCoroutine(DeleyedOpen(delay, animator, status));
+
+            if (delay > 0)
+            {
+                controller.StartCoroutine(DeleyedOpen(delay, animator, status));
+            }
+            else
+            {
+                animator.SetBool(boolName, status);
+            }
+        }
+        else
+        {
+            if (aiController == null)
+                aiController = animator.GetComponentInParent<AIController>();
+
+            if (delay > 0)
+            {
+                Debug.Log("Controller: " + (controller != null ? "No nulo" : "Nulo") + " game object " + animator.gameObject.name);
+                aiController.StartCoroutine(DeleyedOpen(delay, animator, status));
+            }
+            else
+            {
+                animator.SetBool(boolName, status);
+            }
+        }
     }
 
     IEnumerator DeleyedOpen(float d, Animator animator, bool targetStatus)

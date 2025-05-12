@@ -8,4 +8,10 @@ public class Interfaces : MonoBehaviour
         void OnHit();
         string GetHitFx();
     }
+
+    public interface IPointOfInterest
+    {
+        bool OnDetect(AIController aIController);
+        Transform GetTransform();   
+    }
 }
