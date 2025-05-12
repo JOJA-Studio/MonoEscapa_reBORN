@@ -61,7 +61,7 @@ public class MenuManager : MonoBehaviour
     ////////////////////FUNCIONALIDAD BOTONES DE CAMBIAR DE NIVEL Y SALIR DEL GAME////////////////////////////////////////
     public void StartGame()
     {
-        SceneManager.LoadScene("Level1");
+        SceneManager.LoadScene("primerNivel");
     }
 
     public void DayNightGame()

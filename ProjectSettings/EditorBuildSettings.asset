@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/SplashCompany.unity
     guid: 0945520a318f7f0458947b8bab4b9d24
   - enabled: 0
@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Tutoriales/Test MGS/Scene 2.unity
     guid: db2de8bbdeb642245be9bab1f4b9cf28
+  - enabled: 1
+    path: Assets/Last UI/Scenes/Menu_UI.unity
+    guid: 7e98cd0252413ef4aabcf996d788b181
   - enabled: 1
     path: "Assets/Scenes/Dise\xF1oFinal/primerNivel.unity"
     guid: cba157bbfc5268346a89b61c14b53ef2

@@ -179,9 +179,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'SplashCompany
+  m_text: 'JOJA Studio
 
-'
+
+    Presents:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2c515f24deecd094da3bd8e7c95adf12, type: 2}
   m_sharedMaterial: {fileID: -4681474743868139300, guid: 2c515f24deecd094da3bd8e7c95adf12,
@@ -209,15 +210,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 139.4
+  m_fontSize: 64.1
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 290
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -744,7 +745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfecd8f4476eedc4cbb70a3e8aef2a80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NextScene: PressAnyKey
+  NextScene: Menu_UI
   SkipKB: {fileID: 9159868413541167758, guid: 897f67e6af47e7046abb4933239b7b6d, type: 3}
   SkipGP: {fileID: 3925113378490050728, guid: 897f67e6af47e7046abb4933239b7b6d, type: 3}
 --- !u!4 &2042727526
