@@ -64,9 +64,9 @@ public class MenuManager : MonoBehaviour
         SceneManager.LoadScene("primerNivel");
     }
 
-    public void DayNightGame()
+    public void ContinueLastGame()
     {
-        SceneManager.LoadScene("DayNightCycle");
+        SceneManager.LoadScene("primerNivel");
     }
 
     public void EnemyTestDemo()
