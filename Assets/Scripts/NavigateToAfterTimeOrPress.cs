@@ -9,7 +9,7 @@ public class NavigateToAfterTimeOrPress : MonoBehaviour
     [SerializeField] string NextScene;
     [SerializeField] InputActionReference SkipKB;
     [SerializeField] InputActionReference SkipGP;
-    private float timeNextScene = 5;
+    private float timeNextScene = 3.2f;
     private bool CheckCallScene;
     // Start is called before the first frame update
     void Start()

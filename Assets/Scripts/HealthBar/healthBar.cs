@@ -40,11 +40,6 @@ public class ConsciousnessBar : MonoBehaviour
             ConsciousnessSlider.value = health;
         }
 
-        //if (Input.GetKeyDown(KeyCode.J)) 
-        //{
-        //    takeDamage(10);
-        //}
-
         if (ConsciousnessSlider.value != easeConsciousnessSlider.value)
         {
             easeConsciousnessSlider.value = Mathf.Lerp(easeConsciousnessSlider.value, health, lerpSpeed);
@@ -56,7 +51,7 @@ public class ConsciousnessBar : MonoBehaviour
         }
         else if (health <= 0)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            SceneManager.LoadScene("MainMenu");
         }
     }
 

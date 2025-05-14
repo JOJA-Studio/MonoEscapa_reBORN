@@ -61,6 +61,7 @@ public class MenuManager : MonoBehaviour
     ////////////////////FUNCIONALIDAD BOTONES DE CAMBIAR DE NIVEL Y SALIR DEL GAME////////////////////////////////////////
     public void StartGame()
     {
+        Card.ResetCards();
         SceneManager.LoadScene("primerNivel");
     }
 

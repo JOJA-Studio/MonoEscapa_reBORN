@@ -18,7 +18,7 @@ public class MenuPausa : MonoBehaviour
     [SerializeField] AudioSource SFXButtons;
     [SerializeField] AudioClip[] hoversAudio;
     [SerializeField] PlayerController controller;
-    [SerializeField] GameObject player;
+    [SerializeField] GameObject gameObejctPlayer;
 
 
     private bool isPaused = false;
@@ -51,6 +51,9 @@ public class MenuPausa : MonoBehaviour
         isPaused = !isPaused;
         Time.timeScale = isPaused ? 0f : 1f;
         SetPauseScreen(isPaused ? 1f : 0f, isPaused);
+        SetLifeBar(isPaused ? 0f : 1f, !isPaused);
+
+        controller.enabled = !isPaused;
     }
 
     public void BotonResume()
@@ -58,6 +61,14 @@ public class MenuPausa : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1f;
         SetPauseScreen(0f, false);
+        SetLifeBar(1f, true);
+
+        controller.enabled = true;
+    }
+
+    public void GoToMainMenu()
+    {
+        Application.Quit();
     }
 
     public void SavePlayer()
@@ -82,6 +93,13 @@ public class MenuPausa : MonoBehaviour
         pauseScreen.alpha = alpha;
         pauseScreen.interactable = interactable;
         pauseScreen.blocksRaycasts = interactable;
+    }
+
+    private void SetLifeBar(float alpha, bool interactable)
+    {
+        lifeBar.alpha = alpha;
+        lifeBar.interactable = interactable;
+        lifeBar.blocksRaycasts = interactable;
     }
 
     ////////////////////FUNCIONALIDAD SONIDO EN LOS BOTONES////////////////////////////////////////

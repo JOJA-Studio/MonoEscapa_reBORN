@@ -9,6 +9,7 @@ public class HealthSystemEnemies : MonoBehaviour
     private HurtCollider hurtCollider;
     public Animator animator;
     public Rigidbody rigidoCuerpo;
+    public AudioSource _audioSource;
 
     private void Awake()
     {
@@ -36,6 +37,7 @@ public class HealthSystemEnemies : MonoBehaviour
     {
         Debug.Log(gameObject.name + " ha muerto.");
         animator.SetBool("die", true);
+        _audioSource.Play();
         //rb.isKinematic = false;
 
         StartCoroutine(MuerteSecuencia(rigidoCuerpo, gameObject));
